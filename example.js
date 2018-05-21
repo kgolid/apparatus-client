@@ -1,4 +1,5 @@
 import ApparatusBuilder from './index.js';
+import Justeer from './node_modules/justeer/index.module.js';
 import * as dat from './node_modules/dat.gui/build/dat.gui.module.js';
 
 window.onload = function() {
@@ -99,16 +100,17 @@ window.onload = function() {
     let nx = options.columns;
     let ny = options.rows;
 
-    let inner_padding_x = (canvas.width - padding * 2 - nx * apparat_size_x) / (nx - 1);
-    let inner_padding_y = (canvas.height - padding * 2 - ny * apparat_size_y) / (ny - 1);
+    let justify_x = new Justeer(canvas.width, nx, apparat_size_x);
+    let justify_y = new Justeer(canvas.height, ny, apparat_size_y);
+    let place_x = justify_x.placement_given_spacing_between_elements(padding);
+    let place_y = justify_y.placement_given_spacing_between_elements(padding);
 
     ctx.fillStyle = options.background_color;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(padding, padding);
     for (let i = 0; i < ny; i++) {
-      ctx.save();
       for (let j = 0; j < nx; j++) {
+        ctx.save();
+        ctx.translate(place_x(j), place_y(i));
         let grid = apparatus.generate();
         ctx.lineCap = 'square';
         ctx.lineWidth = '6';
@@ -116,12 +118,9 @@ window.onload = function() {
         ctx.lineCap = 'butt';
         ctx.lineWidth = '3';
         display_apparatus(ctx, grid, cell_size);
-        ctx.translate(apparat_size_x + inner_padding_x, 0);
+        ctx.restore();
       }
-      ctx.restore();
-      ctx.translate(0, apparat_size_y + inner_padding_y);
     }
-    ctx.restore();
   }
 
   function display_apparatus(ctx, grid, size) {

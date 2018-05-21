@@ -4,12 +4,17 @@
   "description": "A library for generating apparatus shapes.",
   "main": "index.js",
   "homepage": "https://kgolid.github.io/apparatus/index.html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kgolid/apparatus.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kjetil Golid",
   "license": "MIT",
   "dependencies": {
-    "dat.gui": "^0.7.2"
+    "dat.gui": "^0.7.2",
+    "justeer": "^1.1.0"
   }
 }
