@@ -1,5 +1,5 @@
 export default class {
-  constructor(r, c_new, c_ext, c_vert, cols, col_mode, symmetric, roundness, solidness) {
+  constructor(r, c_new, c_ext, c_vert, cols, col_mode, h_symmetric, v_symmetric, roundness, solidness) {
     this.xdim = Math.round(r * 2 + 15, 0);
     this.ydim = Math.round(r * 2 + 15, 0);
     this.radius = r;
@@ -8,7 +8,8 @@ export default class {
     this.chance_vertical = c_vert;
     this.colors = cols;
     this.color_mode = col_mode;
-    this.symmetric = symmetric;
+    this.h_symmetric = h_symmetric;
+    this.v_symmetric = v_symmetric;
     this.roundness = roundness;
     this.solidness = solidness;
   }
@@ -21,12 +22,19 @@ export default class {
       grid[i] = new Array(this.xdim + 1);
       for (var j = 0; j < grid[i].length; j++) {
         if (i == 0 || j == 0) grid[i][j] = { h: false, v: false, in: false, col: null };
-        else if (this.symmetric && j > grid.length / 2)
+        else if (this.h_symmetric && j > grid[i].length / 2)
           grid[i][j] = {
-            h: grid[i][grid.length - j].h,
-            v: grid[i][grid.length - j + 1].v,
-            in: grid[i][grid.length - j].in,
-            col: grid[i][grid.length - j].col
+            h: grid[i][grid[i].length - j].h,
+            v: grid[i][grid[i].length - j + 1].v,
+            in: grid[i][grid[i].length - j].in,
+            col: grid[i][grid[i].length - j].col
+          };
+        else if (this.v_symmetric && i > grid.length / 2)
+          grid[i][j] = {
+            h: grid[grid.length - i + 1][j].h,
+            v: grid[grid.length - i][j].v,
+            in: grid[grid.length - i][j].in,
+            col: grid[grid.length - i][j].col
           };
         else grid[i][j] = this.next_block(j, i, grid[i][j - 1], grid[i - 1][j]);
       }

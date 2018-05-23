@@ -12,7 +12,8 @@ window.onload = function() {
 
     let options = {
       radius: 14,
-      symmetric: true,
+      h_symmetric: true,
+      v_symmetric: false,
       roundness: 0.1,
       solidness: 0.5,
       compactness: 0.9,
@@ -49,7 +50,8 @@ window.onload = function() {
     f2.add(options, 'compactness', 0.5, 1, 0.02).onFinishChange(run);
     f2.add(options, 'block_size', 0.5, 1, 0.02).onFinishChange(run);
     f2.add(options, 'chance_vertical', 0, 1, 0.1).onFinishChange(run);
-    f2.add(options, 'symmetric').onFinishChange(run);
+    f2.add(options, 'h_symmetric').onFinishChange(run);
+    f2.add(options, 'v_symmetric').onFinishChange(run);
 
     let f3 = gui.addFolder('Apparatus Colors');
     f3.addColor(options, 'background_color').onFinishChange(run);
@@ -86,7 +88,8 @@ window.onload = function() {
       options.chance_vertical,
       colors,
       options.color_mode,
-      options.symmetric,
+      options.h_symmetric,
+      options.v_symmetric,
       options.roundness,
       options.solidness
     );
