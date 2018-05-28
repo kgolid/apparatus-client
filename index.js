@@ -1,13 +1,15 @@
 export default class {
-  constructor(r, c_new, c_ext, c_vert, cols, col_mode, h_symmetric, v_symmetric, roundness, solidness) {
-    this.xdim = Math.round(r * 2 + 15, 0);
-    this.ydim = Math.round(r * 2 + 15, 0);
-    this.radius = r;
+  constructor(rx, ry, c_new, c_ext, c_vert, cols, col_mode, grp_size, h_symmetric, v_symmetric, roundness, solidness) {
+    this.xdim = Math.round(rx * 2 + 15, 0);
+    this.ydim = Math.round(ry * 2 + 15, 0);
+    this.radius_x = rx;
+    this.radius_y = ry;
     this.chance_new = c_new;
     this.chance_extend = c_ext;
     this.chance_vertical = c_vert;
     this.colors = cols;
     this.color_mode = col_mode;
+    this.group_size = grp_size;
     this.h_symmetric = h_symmetric;
     this.v_symmetric = v_symmetric;
     this.roundness = roundness;
@@ -128,9 +130,9 @@ export default class {
       } else if (context.color_mode === 'main') {
         col = Math.random() > 0.75 ? get_random(context.colors) : context.main_color;
       } else if (context.color_mode === 'group') {
-        //context.main_color = Math.random() > 0.9 ? get_random(context.colors) : context.main_color;
         let keep = Math.random() > 0.5 ? left.col : top.col;
-        context.main_color = Math.random() > 0.95 ? get_random(context.colors) : keep ? keep : context.main_color;
+        context.main_color =
+          Math.random() > context.group_size ? get_random(context.colors) : keep ? keep : context.main_color;
         col = context.main_color;
       } else {
         col = context.main_color;
@@ -160,17 +162,10 @@ export default class {
       return Math.random() <= context.chance_vertical;
     }
 
-    /*
     function active_position(x, y, fuzzy) {
       let fuzziness = 1 + Math.random() * fuzzy;
-      return get_diagonal(x, y, context.xdim / 2, context.ydim / 2) < context.radius * fuzziness;
-    }
-    */
-    
-    function active_position(x, y, fuzzy) {
-      let fuzziness = 1 + Math.random() * fuzzy;
-      let xa = Math.pow(x -context.xdim /2, 2) / Math.pow(context.radius * fuzziness / 1.5, 2);
-      let ya = Math.pow(y -context.ydim /2, 2) / Math.pow(context.radius * fuzziness * 1.5, 2);
+      let xa = Math.pow(x - context.xdim / 2, 2) / Math.pow(context.radius_x * fuzziness, 2);
+      let ya = Math.pow(y - context.ydim / 2, 2) / Math.pow(context.radius_y * fuzziness, 2);
       return xa + ya < 1;
     }
   }

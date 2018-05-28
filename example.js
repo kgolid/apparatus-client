@@ -11,7 +11,9 @@ window.onload = function() {
     ctx.strokeStyle = '#1c2021';
 
     let options = {
-      radius: 14,
+      cell_size: 10,
+      radius_x: 14,
+      radius_y: 14,
       h_symmetric: true,
       v_symmetric: false,
       roundness: 0.1,
@@ -22,6 +24,7 @@ window.onload = function() {
       rows: 5,
       columns: 5,
       padding: 40,
+      display_stroke: true,
       color1: '#6c843e',
       color2: '#dc383a',
       color3: '#687d99',
@@ -30,6 +33,7 @@ window.onload = function() {
       color6: '#aa3a33',
       color7: '#9c4257',
       color_mode: 'group',
+      group_size: 0.85,
       background_color: '#eeeee5'
     };
 
@@ -41,10 +45,12 @@ window.onload = function() {
     let f1 = gui.addFolder('Layout');
     f1.add(options, 'rows', 1, 12, 1).onFinishChange(run);
     f1.add(options, 'columns', 1, 12, 1).onFinishChange(run);
-    f1.add(options, 'padding', 0, 120, 5).onFinishChange(run);
+    f1.add(options, 'padding', 0, 300, 15).onFinishChange(run);
 
     let f2 = gui.addFolder('Apparatus Shape');
-    f2.add(options, 'radius', 5, 100, 1).onFinishChange(run);
+    f2.add(options, 'cell_size', 5, 15, 1).onFinishChange(run);
+    f2.add(options, 'radius_x', 5, 100, 1).onFinishChange(run);
+    f2.add(options, 'radius_y', 5, 100, 1).onFinishChange(run);
     f2.add(options, 'roundness', 0, 1, 0.1).onFinishChange(run);
     f2.add(options, 'solidness', 0.1, 1, 0.05).onFinishChange(run);
     f2.add(options, 'compactness', 0.5, 1, 0.02).onFinishChange(run);
@@ -53,7 +59,8 @@ window.onload = function() {
     f2.add(options, 'h_symmetric').onFinishChange(run);
     f2.add(options, 'v_symmetric').onFinishChange(run);
 
-    let f3 = gui.addFolder('Apparatus Colors');
+    let f3 = gui.addFolder('Apparatus Looks');
+    f3.add(options, 'display_stroke').onFinishChange(run);
     f3.addColor(options, 'background_color').onFinishChange(run);
     f3.addColor(options, 'color1').onFinishChange(run);
     f3.addColor(options, 'color2').onFinishChange(run);
@@ -63,6 +70,7 @@ window.onload = function() {
     f3.addColor(options, 'color6').onFinishChange(run);
     f3.addColor(options, 'color7').onFinishChange(run);
     f3.add(options, 'color_mode', ['single', 'main', 'group', 'random']).onChange(run);
+    f3.add(options, 'group_size', 0, 1, 0.05).onFinishChange(run);
 
     function run() {
       apparatus = setup_apparatus(options);
@@ -82,12 +90,14 @@ window.onload = function() {
     ];
 
     return new ApparatusBuilder(
-      options.radius,
+      options.radius_x,
+      options.radius_y,
       options.compactness,
       options.block_size,
       options.chance_vertical,
       colors,
       options.color_mode,
+      options.group_size,
       options.h_symmetric,
       options.v_symmetric,
       options.roundness,
@@ -96,9 +106,8 @@ window.onload = function() {
   }
 
   function display(ctx, apparatus, options) {
-    let cell_size = 10;
-    let apparat_size_x = apparatus.xdim * cell_size;
-    let apparat_size_y = apparatus.ydim * cell_size;
+    let apparat_size_x = apparatus.xdim * options.cell_size;
+    let apparat_size_y = apparatus.ydim * options.cell_size;
 
     let padding = options.padding - 100;
     let nx = options.columns;
@@ -118,16 +127,16 @@ window.onload = function() {
         let grid = apparatus.generate();
         ctx.lineCap = 'square';
         ctx.lineWidth = '6';
-        display_apparatus(ctx, grid, cell_size);
+        display_apparatus(ctx, grid, options.cell_size, options.display_stroke);
         ctx.lineCap = 'butt';
         ctx.lineWidth = '3';
-        display_apparatus(ctx, grid, cell_size);
+        display_apparatus(ctx, grid, options.cell_size, options.display_stroke);
         ctx.restore();
       }
     }
   }
 
-  function display_apparatus(ctx, grid, size) {
+  function display_apparatus(ctx, grid, size, display_stroke) {
     for (var i = 0; i < grid.length; i++) {
       for (var j = 0; j < grid[i].length; j++) {
         if (grid[i][j].in && grid[i][j].col != null) {
@@ -138,20 +147,21 @@ window.onload = function() {
         }
       }
     }
-
-    for (var i = 0; i < grid.length; i++) {
-      for (var j = 0; j < grid[i].length; j++) {
-        if (grid[i][j].h) {
-          ctx.beginPath();
-          ctx.moveTo(j * size, i * size);
-          ctx.lineTo((j + 1) * size, i * size);
-          ctx.stroke();
-        }
-        if (grid[i][j].v) {
-          ctx.beginPath();
-          ctx.moveTo(j * size, i * size);
-          ctx.lineTo(j * size, (i + 1) * size);
-          ctx.stroke();
+    if (display_stroke) {
+      for (var i = 0; i < grid.length; i++) {
+        for (var j = 0; j < grid[i].length; j++) {
+          if (grid[i][j].h) {
+            ctx.beginPath();
+            ctx.moveTo(j * size, i * size);
+            ctx.lineTo((j + 1) * size, i * size);
+            ctx.stroke();
+          }
+          if (grid[i][j].v) {
+            ctx.beginPath();
+            ctx.moveTo(j * size, i * size);
+            ctx.lineTo(j * size, (i + 1) * size);
+            ctx.stroke();
+          }
         }
       }
     }
