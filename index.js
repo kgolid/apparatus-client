@@ -1,7 +1,7 @@
 export default class {
   constructor(rx, ry, c_new, c_ext, c_vert, cols, col_mode, grp_size, h_symmetric, v_symmetric, roundness, solidness) {
-    this.xdim = Math.round(rx * 2 + 15, 0);
-    this.ydim = Math.round(ry * 2 + 15, 0);
+    this.xdim = Math.round(rx * 2 + 19, 0);
+    this.ydim = Math.round(ry * 2 + 19, 0);
     this.radius_x = rx;
     this.radius_y = ry;
     this.chance_new = c_new;

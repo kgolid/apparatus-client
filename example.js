@@ -1,6 +1,7 @@
 import ApparatusBuilder from './index.js';
 import Justeer from './node_modules/justeer/index.module.js';
 import * as dat from './node_modules/dat.gui/build/dat.gui.module.js';
+import presets from './presets.js';
 
 window.onload = function() {
   var canvas = document.getElementById('main_canvas');
@@ -40,7 +41,7 @@ window.onload = function() {
     let apparatus = setup_apparatus(options);
     display(ctx, apparatus, options);
 
-    let gui = new dat.GUI();
+    let gui = new dat.GUI({ load: presets });
     gui.remember(options);
     let f1 = gui.addFolder('Layout');
     f1.add(options, 'rows', 1, 12, 1).onFinishChange(run);
@@ -48,7 +49,7 @@ window.onload = function() {
     f1.add(options, 'padding', 0, 300, 15).onFinishChange(run);
 
     let f2 = gui.addFolder('Apparatus Shape');
-    f2.add(options, 'cell_size', 5, 15, 1).onFinishChange(run);
+    f2.add(options, 'cell_size', 2, 15, 1).onFinishChange(run);
     f2.add(options, 'radius_x', 5, 100, 1).onFinishChange(run);
     f2.add(options, 'radius_y', 5, 100, 1).onFinishChange(run);
     f2.add(options, 'roundness', 0, 1, 0.1).onFinishChange(run);
@@ -70,7 +71,7 @@ window.onload = function() {
     f3.addColor(options, 'color6').onFinishChange(run);
     f3.addColor(options, 'color7').onFinishChange(run);
     f3.add(options, 'color_mode', ['single', 'main', 'group', 'random']).onChange(run);
-    f3.add(options, 'group_size', 0, 1, 0.05).onFinishChange(run);
+    f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
 
     function run() {
       apparatus = setup_apparatus(options);
