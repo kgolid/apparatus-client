@@ -158,9 +158,18 @@ export default class {
       return Math.random() <= context.chance_vertical;
     }
 
+    /*
     function active_position(x, y, fuzzy) {
       let fuzziness = 1 + Math.random() * fuzzy;
       return get_diagonal(x, y, context.xdim / 2, context.ydim / 2) < context.radius * fuzziness;
+    }
+    */
+    
+    function active_position(x, y, fuzzy) {
+      let fuzziness = 1 + Math.random() * fuzzy;
+      let xa = Math.pow(x -context.xdim /2, 2) / context.radius * fuziness / 1.5;
+      let ya = Math.pow(y -context.ydim /2, 2) / context.radius * fuziness * 1.5;
+      return xa + ya < 1;
     }
   }
 }
