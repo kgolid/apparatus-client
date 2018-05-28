@@ -167,8 +167,8 @@ export default class {
     
     function active_position(x, y, fuzzy) {
       let fuzziness = 1 + Math.random() * fuzzy;
-      let xa = Math.pow(x -context.xdim /2, 2) / context.radius * fuzziness / 1.5;
-      let ya = Math.pow(y -context.ydim /2, 2) / context.radius * fuzziness * 1.5;
+      let xa = Math.pow(x -context.xdim /2, 2) / Math.pow(context.radius * fuzziness / 1.5, 2);
+      let ya = Math.pow(y -context.ydim /2, 2) / Math.pow(context.radius * fuzziness * 1.5, 2);
       return xa + ya < 1;
     }
   }
