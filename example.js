@@ -44,7 +44,7 @@ window.onload = function() {
     f1.add(options, 'padding', 0, 120, 5).onFinishChange(run);
 
     let f2 = gui.addFolder('Apparatus Shape');
-    f2.add(options, 'radius', 5, 30, 1).onFinishChange(run);
+    f2.add(options, 'radius', 5, 100, 1).onFinishChange(run);
     f2.add(options, 'roundness', 0, 1, 0.1).onFinishChange(run);
     f2.add(options, 'solidness', 0.1, 1, 0.05).onFinishChange(run);
     f2.add(options, 'compactness', 0.5, 1, 0.02).onFinishChange(run);
