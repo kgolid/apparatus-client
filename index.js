@@ -128,7 +128,9 @@ export default class {
       } else if (context.color_mode === 'main') {
         col = Math.random() > 0.75 ? get_random(context.colors) : context.main_color;
       } else if (context.color_mode === 'group') {
-        context.main_color = Math.random() > 0.85 ? get_random(context.colors) : context.main_color;
+        //context.main_color = Math.random() > 0.9 ? get_random(context.colors) : context.main_color;
+        let keep = Math.random() > 0.5 ? left.col : top.col;
+        context.main_color = Math.random() > 0.95 ? get_random(context.colors) : keep ? keep : context.main_color;
         col = context.main_color;
       } else {
         col = context.main_color;
