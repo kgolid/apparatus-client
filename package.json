@@ -1,5 +1,5 @@
 {
-  "name": "apparatus",
+  "name": "apparatus-client",
   "version": "1.0.0",
   "description": "A library for generating apparatus shapes.",
   "main": "index.js",
