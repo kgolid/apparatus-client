@@ -1,6 +1,7 @@
-import ApparatusBuilder from './index.js';
+import ApparatusBuilder from './node_modules/apparatus-generator/dist/index.esm.js';
 import Justeer from './node_modules/justeer/index.module.js';
 import * as dat from './node_modules/dat.gui/build/dat.gui.module.js';
+
 import presets from './presets.js';
 
 window.onload = function() {
