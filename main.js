@@ -91,32 +91,29 @@ window.onload = function() {
       options.color7
     ];
 
-    return new ApparatusBuilder(
-      options.radius_x,
-      options.radius_y,
-      options.compactness,
-      options.block_size,
-      options.chance_vertical,
-      colors,
-      options.color_mode,
-      options.group_size,
-      options.h_symmetric,
-      options.v_symmetric,
-      options.roundness,
-      options.solidness
-    );
+    let opts = {
+      initiate_chance: options.compactness,
+      extension_chance: options.block_size,
+      vertical_chance: options.chance_vertical,
+      horizontal_symmetry: options.h_symmetric,
+      vertical_symmetry: options.v_symmetric,
+      roundness: options.roundness,
+      solidness: options.solidness,
+      colors: colors,
+      color_mode: options.color_mode,
+      group_size: options.group_size
+    };
+
+    return new ApparatusBuilder(options.radius_x, options.radius_y, opts);
   }
 
   function display(ctx, apparatus, options) {
-    let apparat_size_x = apparatus.xdim * options.cell_size;
-    let apparat_size_y = apparatus.ydim * options.cell_size;
-
-    let padding = options.padding - 100;
+    let padding = 2 * options.padding - 50;
     let nx = options.columns;
     let ny = options.rows;
 
-    let justify_x = new Justeer(canvas.width, nx, apparat_size_x);
-    let justify_y = new Justeer(canvas.height, ny, apparat_size_y);
+    let justify_x = new Justeer(canvas.width, nx, apparatus.xdim * options.cell_size);
+    let justify_y = new Justeer(canvas.height, ny, apparatus.ydim * options.cell_size);
     let place_x = justify_x.placement_given_spacing_between_elements(padding);
     let place_y = justify_y.placement_given_spacing_between_elements(padding);
 
@@ -128,44 +125,20 @@ window.onload = function() {
         ctx.translate(place_x(j), place_y(i));
         let grid = apparatus.generate();
         ctx.lineCap = 'square';
-        ctx.lineWidth = '6';
-        display_apparatus(ctx, grid, options.cell_size, options.display_stroke);
-        ctx.lineCap = 'butt';
         ctx.lineWidth = '3';
-        display_apparatus(ctx, grid, options.cell_size, options.display_stroke);
+        display_apparatus2(ctx, grid, options.cell_size, options.display_stroke);
         ctx.restore();
       }
     }
   }
 
-  function display_apparatus(ctx, grid, size, display_stroke) {
-    for (var i = 0; i < grid.length; i++) {
-      for (var j = 0; j < grid[i].length; j++) {
-        if (grid[i][j].in && grid[i][j].col != null) {
-          ctx.beginPath();
-          ctx.rect(j * size - 1, i * size - 1, size + 2, size + 2);
-          ctx.fillStyle = grid[i][j].col;
-          ctx.fill();
-        }
-      }
-    }
-    if (display_stroke) {
-      for (var i = 0; i < grid.length; i++) {
-        for (var j = 0; j < grid[i].length; j++) {
-          if (grid[i][j].h) {
-            ctx.beginPath();
-            ctx.moveTo(j * size, i * size);
-            ctx.lineTo((j + 1) * size, i * size);
-            ctx.stroke();
-          }
-          if (grid[i][j].v) {
-            ctx.beginPath();
-            ctx.moveTo(j * size, i * size);
-            ctx.lineTo(j * size, (i + 1) * size);
-            ctx.stroke();
-          }
-        }
-      }
-    }
+  function display_apparatus2(ctx, rects, size, display_stroke) {
+    rects.forEach(rect => {
+      ctx.beginPath();
+      ctx.rect(rect.x1 * size - 1, rect.y1 * size - 1, rect.w * size + 1, rect.h * size + 1);
+      ctx.fillStyle = rect.col;
+      ctx.fill();
+      if (display_stroke) ctx.stroke();
+    });
   }
 };
