@@ -5,7 +5,7 @@ import * as dat from './node_modules/dat.gui/build/dat.gui.module.js';
 import presets from './presets.js';
 
 window.onload = function() {
-  var canvas = document.getElementById('main_canvas');
+  var canvas = document.getElementById('sketch');
   canvas.style.width = '100%';
   canvas.style.height = '100%';
   if (canvas.getContext) {
