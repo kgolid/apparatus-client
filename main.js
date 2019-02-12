@@ -18,6 +18,7 @@ window.onload = function() {
       radius_y: 14,
       h_symmetric: true,
       v_symmetric: false,
+      simple: false,
       roundness: 0.1,
       solidness: 0.5,
       compactness: 0.9,
@@ -53,6 +54,7 @@ window.onload = function() {
     f2.add(options, 'cell_size', 2, 15, 1).onFinishChange(run);
     f2.add(options, 'radius_x', 5, 100, 1).onFinishChange(run);
     f2.add(options, 'radius_y', 5, 100, 1).onFinishChange(run);
+    f2.add(options, 'simple').onFinishChange(run);
     f2.add(options, 'roundness', 0, 1, 0.1).onFinishChange(run);
     f2.add(options, 'solidness', 0.1, 1, 0.05).onFinishChange(run);
     f2.add(options, 'compactness', 0.5, 1, 0.02).onFinishChange(run);
@@ -71,7 +73,12 @@ window.onload = function() {
     f3.addColor(options, 'color5').onFinishChange(run);
     f3.addColor(options, 'color6').onFinishChange(run);
     f3.addColor(options, 'color7').onFinishChange(run);
-    f3.add(options, 'color_mode', ['single', 'main', 'group', 'random']).onChange(run);
+    f3.add(options, 'color_mode', [
+      'single',
+      'main',
+      'group',
+      'random'
+    ]).onChange(run);
     f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
 
     function run() {
@@ -97,6 +104,7 @@ window.onload = function() {
       vertical_chance: options.chance_vertical,
       horizontal_symmetry: options.h_symmetric,
       vertical_symmetry: options.v_symmetric,
+      simple: options.simple,
       roundness: options.roundness,
       solidness: options.solidness,
       colors: colors,
@@ -112,8 +120,16 @@ window.onload = function() {
     let nx = options.columns;
     let ny = options.rows;
 
-    let justify_x = new Justeer(canvas.width, nx, apparatus.xdim * options.cell_size);
-    let justify_y = new Justeer(canvas.height, ny, apparatus.ydim * options.cell_size);
+    let justify_x = new Justeer(
+      canvas.width,
+      nx,
+      apparatus.xdim * options.cell_size
+    );
+    let justify_y = new Justeer(
+      canvas.height,
+      ny,
+      apparatus.ydim * options.cell_size
+    );
     let place_x = justify_x.placement_given_spacing_between_elements(padding);
     let place_y = justify_y.placement_given_spacing_between_elements(padding);
 
@@ -126,7 +142,12 @@ window.onload = function() {
         let grid = apparatus.generate();
         ctx.lineCap = 'square';
         ctx.lineWidth = '3';
-        display_apparatus2(ctx, grid, options.cell_size, options.display_stroke);
+        display_apparatus2(
+          ctx,
+          grid,
+          options.cell_size,
+          options.display_stroke
+        );
         ctx.restore();
       }
     }
@@ -135,7 +156,12 @@ window.onload = function() {
   function display_apparatus2(ctx, rects, size, display_stroke) {
     rects.forEach(rect => {
       ctx.beginPath();
-      ctx.rect(rect.x1 * size - 1, rect.y1 * size - 1, rect.w * size + 1, rect.h * size + 1);
+      ctx.rect(
+        rect.x1 * size - 1,
+        rect.y1 * size - 1,
+        rect.w * size + 1,
+        rect.h * size + 1
+      );
       ctx.fillStyle = rect.col;
       ctx.fill();
       if (display_stroke) ctx.stroke();

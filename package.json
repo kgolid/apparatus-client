@@ -10,8 +10,8 @@
   "author": "Kjetil Golid",
   "license": "MIT",
   "dependencies": {
-    "apparatus-generator": "^1.1.2",
-    "dat.gui": "^0.7.2",
+    "apparatus-generator": "^1.3.1",
+    "dat.gui": "^0.7.3",
     "justeer": "^1.1.0"
   }
 }
