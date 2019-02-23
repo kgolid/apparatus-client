@@ -1,6 +1,6 @@
-import ApparatusBuilder from '../node_modules/apparatus-generator/dist/index.esm.js';
-import Justeer from '../node_modules/justeer/index.module.js';
-import * as dat from '../node_modules/dat.gui/build/dat.gui.module.js';
+import ApparatusBuilder from 'apparatus-generator';
+import Justeer from 'justeer';
+import * as dat from 'dat.gui';
 
 import presets from './presets.js';
 
