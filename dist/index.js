@@ -2742,6 +2742,7 @@
     });
   }
   var GUI$1 = GUI;
+  //# sourceMappingURL=dat.gui.module.js.map
 
   var presets = {
     remembered: {
@@ -2851,9 +2852,15 @@
   };
 
   window.onload = function() {
-    var canvas = document.getElementById('sketch');
+    var canvas = document.createElement('canvas');
+    canvas.width = '3600';
+    canvas.height = '2000';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
+
+    var container = document.getElementById('sketch');
+    container.appendChild(canvas);
+
     if (canvas.getContext) {
       var ctx = canvas.getContext('2d');
       ctx.strokeStyle = '#1c2021';
