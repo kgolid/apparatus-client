@@ -2748,6 +2748,7 @@
     });
   }
   var GUI$1 = GUI;
+  //# sourceMappingURL=dat.gui.module.js.map
 
   var colourscafe = [
     {
@@ -3254,102 +3255,26 @@
     remembered: {
       Default: {
         '0': {
-          rows: 1,
-          columns: 1,
-          padding: 50,
-          cell_size: 30,
-          radius_x: 14,
-          radius_y: 14,
-          roundness: 0.1,
-          solidness: 0.5,
-          compactness: 0.9,
-          block_size: 0.82,
-          chance_vertical: 0.5,
-          h_symmetric: true,
-          v_symmetric: false,
-          display_stroke: true,
-          color_mode: 'group',
-          group_size: 0.85
-        }
-      },
-      saami: {
-        0: {
-          rows: 4,
-          columns: 6,
-          padding: 60,
-          cell_size: 25,
+          rows: 5,
+          columns: 8,
+          padding: 30,
+          cell_size: 22,
           cell_pad: -2,
           radius_x: 8,
-          radius_y: 9,
+          radius_y: 10,
           simple: false,
           roundness: 0.1,
           solidness: 0.5,
-          compactness: 0.9,
-          block_size: 0.8200000000000001,
-          chance_vertical: 0.5,
-          h_symmetric: false,
+          compactness: 1,
+          block_size: 0.8,
+          chance_vertical: 0.4,
+          h_symmetric: true,
           v_symmetric: false,
           display_stroke: false,
           display_fill: true,
-          palette: 'saami',
+          palette: 'knotberry2',
           color_mode: 'group',
-          group_size: 0.76
-        }
-      },
-      mural: {
-        '0': {
-          rows: 3,
-          columns: 3,
-          padding: 120,
-          cell_size: 5,
-          radius_x: 50,
-          radius_y: 50,
-          roundness: 1,
-          solidness: 1,
-          compactness: 1,
-          block_size: 0.5,
-          chance_vertical: 0.5,
-          h_symmetric: false,
-          v_symmetric: false,
-          display_stroke: false,
-          background_color: '#f6ddbb',
-          color1: '#d63644',
-          color2: '#396c68',
-          color3: '#f59647',
-          color4: '#4d3240',
-          color5: '#893f49',
-          color6: '#89e3b7',
-          color7: '#817c77',
-          color_mode: 'group',
-          group_size: 0.9
-        }
-      },
-      blueprint: {
-        '0': {
-          rows: 1,
-          columns: 3,
-          padding: 210,
-          cell_size: 5,
-          radius_x: 31,
-          radius_y: 100,
-          roundness: 0,
-          solidness: 0.65,
-          compactness: 1,
-          block_size: 0.92,
-          chance_vertical: 0,
-          h_symmetric: true,
-          v_symmetric: false,
-          display_stroke: true,
-          background_color: '#dedede',
-          color1: '#dedede',
-          color2: '#dedede',
-          color3: '#dedede',
-          color4: '#dedede',
-          color5: '#dedede',
-          color6: '#dedede',
-          color7: '#dedede',
-          color_mode: 'group',
-          group_size: 0.76
+          group_size: 0.7
         }
       }
     },
@@ -3375,8 +3300,10 @@
 
   window.onload = function() {
     var canvas = document.createElement('canvas');
-    canvas.width = '4200';
-    canvas.height = '5940';
+    canvas.width = '3200';
+    canvas.height = '1800';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
 
     var container = document.getElementById('sketch');
     container.appendChild(canvas);
@@ -3408,9 +3335,6 @@
         group_size: 0.85
       };
 
-      let apparatus = setup_apparatus(options);
-      display(ctx, apparatus, options);
-
       let gui$$1 = new GUI$1({ load: presets });
       gui$$1.remember(options);
       let f1 = gui$$1.addFolder('Layout');
@@ -3421,8 +3345,8 @@
       let f2 = gui$$1.addFolder('Apparatus Shape');
       f2.add(options, 'cell_size', 2, 45, 1).onFinishChange(run);
       f2.add(options, 'cell_pad', -20, 25, 1).onFinishChange(run);
-      f2.add(options, 'radius_x', 5, 100, 1).onFinishChange(run);
-      f2.add(options, 'radius_y', 5, 100, 1).onFinishChange(run);
+      f2.add(options, 'radius_x', 5, 30, 1).onFinishChange(run);
+      f2.add(options, 'radius_y', 5, 30, 1).onFinishChange(run);
       f2.add(options, 'simple').onFinishChange(run);
       f2.add(options, 'roundness', 0, 1, 0.1).onFinishChange(run);
       f2.add(options, 'solidness', 0.1, 1, 0.05).onFinishChange(run);
@@ -3443,6 +3367,9 @@
         'random'
       ]).onChange(run);
       f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
+
+      let apparatus = setup_apparatus(options);
+      display(ctx, apparatus, options);
 
       function run() {
         apparatus = setup_apparatus(options);
@@ -3505,7 +3432,6 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = get$1(options.palette).background;
-      //ctx.fillStyle = '#f3e5dd';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < ny; i++) {
         for (let j = 0; j < nx - (i % 2); j++) {
@@ -3552,22 +3478,20 @@
 
       if (display_stroke) {
         roughRects.forEach(rect => {
-          if (Math.random() < 0.5) {
-            const points = getRectPoints(
-              rect.x1 * (cell_size + cell_pad) - 5,
-              rect.y1 * (cell_size + cell_pad) - 5,
-              rect.w * (cell_size + cell_pad) - cell_pad + 10,
-              rect.h * (cell_size + cell_pad) - cell_pad + 10
-            );
-            const hatchPoints = getHatchPoints(
-              rect.x1 * (cell_size + cell_pad),
-              rect.y1 * (cell_size + cell_pad),
-              rect.w * (cell_size + cell_pad) - cell_pad,
-              rect.h * (cell_size + cell_pad) - cell_pad
-            );
-            //drawPoints(ctx, points, null, stroke_color);
-            hatchRect(ctx, hatchPoints, rect.col);
-          }
+          const points = getRectPoints(
+            rect.x1 * (cell_size + cell_pad) + 4,
+            rect.y1 * (cell_size + cell_pad) + 4,
+            rect.w * (cell_size + cell_pad) - cell_pad - 8,
+            rect.h * (cell_size + cell_pad) - cell_pad - 8
+          );
+          const hatchPoints = getHatchPoints(
+            rect.x1 * (cell_size + cell_pad),
+            rect.y1 * (cell_size + cell_pad),
+            rect.w * (cell_size + cell_pad) - cell_pad,
+            rect.h * (cell_size + cell_pad) - cell_pad
+          );
+          drawPoints(ctx, points, null, stroke_color);
+          //hatchRect(ctx, hatchPoints, rect.col);
         });
       }
     }
@@ -3586,20 +3510,6 @@
       const south = roughLine([px, py + sy], [px + sx, py + sy], 5);
 
       return { north, south };
-    }
-
-    function hatchRect(ctx, points, strokeCol) {
-      const north = points.north;
-      const south = points.south;
-
-      const number_of_hatches = Math.min(north.length, south.length);
-
-      const hatches = [];
-      for (let i = 0; i < number_of_hatches; i++) {
-        hatches.push(roughLine(north[i].a, south[i].a));
-      }
-
-      hatches.forEach(hatch => drawPoints(ctx, hatch, null, strokeCol));
     }
 
     function drawPoints(ctx, points, col, strokeCol) {

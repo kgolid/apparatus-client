@@ -8,10 +8,10 @@ import presets from './presets_rough.js';
 
 window.onload = function() {
   var canvas = document.createElement('canvas');
-  canvas.width = '4200';
-  canvas.height = '5940';
-  //canvas.style.width = '100%';
-  //canvas.style.height = '100%';
+  canvas.width = '3200';
+  canvas.height = '1800';
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
 
   var pad = 10;
 
@@ -45,9 +45,6 @@ window.onload = function() {
       group_size: 0.85
     };
 
-    let apparatus = setup_apparatus(options);
-    display(ctx, apparatus, options);
-
     let gui = new dat.GUI({ load: presets });
     gui.remember(options);
     let f1 = gui.addFolder('Layout');
@@ -58,8 +55,8 @@ window.onload = function() {
     let f2 = gui.addFolder('Apparatus Shape');
     f2.add(options, 'cell_size', 2, 45, 1).onFinishChange(run);
     f2.add(options, 'cell_pad', -20, 25, 1).onFinishChange(run);
-    f2.add(options, 'radius_x', 5, 100, 1).onFinishChange(run);
-    f2.add(options, 'radius_y', 5, 100, 1).onFinishChange(run);
+    f2.add(options, 'radius_x', 5, 30, 1).onFinishChange(run);
+    f2.add(options, 'radius_y', 5, 30, 1).onFinishChange(run);
     f2.add(options, 'simple').onFinishChange(run);
     f2.add(options, 'roundness', 0, 1, 0.1).onFinishChange(run);
     f2.add(options, 'solidness', 0.1, 1, 0.05).onFinishChange(run);
@@ -80,6 +77,9 @@ window.onload = function() {
       'random'
     ]).onChange(run);
     f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
+
+    let apparatus = setup_apparatus(options);
+    display(ctx, apparatus, options);
 
     function run() {
       apparatus = setup_apparatus(options);
@@ -142,7 +142,6 @@ window.onload = function() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = tome.get(options.palette).background;
-    //ctx.fillStyle = '#f3e5dd';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < ny; i++) {
       for (let j = 0; j < nx - (i % 2); j++) {
@@ -189,22 +188,20 @@ window.onload = function() {
 
     if (display_stroke) {
       roughRects.forEach(rect => {
-        if (Math.random() < 0.5) {
-          const points = getRectPoints(
-            rect.x1 * (cell_size + cell_pad) - 5,
-            rect.y1 * (cell_size + cell_pad) - 5,
-            rect.w * (cell_size + cell_pad) - cell_pad + 10,
-            rect.h * (cell_size + cell_pad) - cell_pad + 10
-          );
-          const hatchPoints = getHatchPoints(
-            rect.x1 * (cell_size + cell_pad),
-            rect.y1 * (cell_size + cell_pad),
-            rect.w * (cell_size + cell_pad) - cell_pad,
-            rect.h * (cell_size + cell_pad) - cell_pad
-          );
-          //drawPoints(ctx, points, null, stroke_color);
-          hatchRect(ctx, hatchPoints, rect.col);
-        }
+        const points = getRectPoints(
+          rect.x1 * (cell_size + cell_pad) + 4,
+          rect.y1 * (cell_size + cell_pad) + 4,
+          rect.w * (cell_size + cell_pad) - cell_pad - 8,
+          rect.h * (cell_size + cell_pad) - cell_pad - 8
+        );
+        const hatchPoints = getHatchPoints(
+          rect.x1 * (cell_size + cell_pad),
+          rect.y1 * (cell_size + cell_pad),
+          rect.w * (cell_size + cell_pad) - cell_pad,
+          rect.h * (cell_size + cell_pad) - cell_pad
+        );
+        drawPoints(ctx, points, null, stroke_color);
+        //hatchRect(ctx, hatchPoints, rect.col);
       });
     }
   }
@@ -228,10 +225,9 @@ window.onload = function() {
   function hatchRect(ctx, points, strokeCol) {
     const north = points.north;
     const south = points.south;
-
     const number_of_hatches = Math.min(north.length, south.length);
-
     const hatches = [];
+
     for (let i = 0; i < number_of_hatches; i++) {
       hatches.push(roughLine(north[i].a, south[i].a));
     }
