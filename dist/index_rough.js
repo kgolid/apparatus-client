@@ -2749,14 +2749,515 @@
   }
   var GUI$1 = GUI;
 
+  var colourscafe = [
+    {
+      name: 'cc239',
+      colors: ['#e3dd34', '#78496b', '#f0527f', '#a7e0e2'],
+      background: '#e0eff0'
+    },
+    {
+      name: 'cc234',
+      colors: ['#ffce49', '#ede8dc', '#ff5736', '#ff99b4'],
+      background: '#f7f4ed'
+    },
+    {
+      name: 'cc232',
+      colors: ['#5c5f46', '#ff7044', '#ffce39', '#66aeaa'],
+      background: '#e9ecde'
+    },
+    {
+      name: 'cc238',
+      colors: ['#553c60', '#ffb0a0', '#ff6749', '#fbe090'],
+      background: '#f5e9de'
+    },
+    {
+      name: 'cc242',
+      colors: ['#bbd444', '#fcd744', '#fa7b53', '#423c6f'],
+      background: '#faf4e4'
+    },
+    {
+      name: 'cc245',
+      colors: ['#0d4a4e', '#ff947b', '#ead3a2', '#5284ab'],
+      background: '#f6f4ed'
+    },
+    {
+      name: 'cc273',
+      colors: ['#363d4a', '#7b8a56', '#ff9369', '#f4c172'],
+      background: '#f0efe2'
+    }
+  ];
+
+  var ranganath = [
+    {
+      name: 'rag-mysore',
+      colors: ['#ec6c26', '#613a53', '#e8ac52', '#639aa0'],
+      background: '#d5cda1'
+    },
+    {
+      name: 'rag-gol',
+      colors: ['#d3693e', '#803528', '#f1b156', '#90a798'],
+      background: '#f0e0a4'
+    },
+    {
+      name: 'rag-belur',
+      colors: ['#f46e26', '#68485f', '#3d273a', '#535d55'],
+      background: '#dcd4a6'
+    },
+    {
+      name: 'rag-bangalore',
+      colors: ['#ea720e', '#ca5130', '#e9c25a', '#52534f'],
+      background: '#f9ecd3'
+    },
+    {
+      name: 'rag-taj',
+      colors: ['#ce565e', '#8e1752', '#f8a100', '#3ac1a6'],
+      background: '#efdea2'
+    },
+    {
+      name: 'rag-virupaksha',
+      colors: ['#f5736a', '#925951', '#feba4c', '#9d9b9d'],
+      background: '#eedfa2'
+    }
+  ];
+
+  var roygbivs = [
+    {
+      name: 'retro',
+      colors: [
+        '#69766f',
+        '#9ed6cb',
+        '#f7e5cc',
+        '#9d8f7f',
+        '#936454',
+        '#bf5c32',
+        '#efad57'
+      ]
+    },
+    {
+      name: 'retro-washedout',
+      colors: [
+        '#878a87',
+        '#cbdbc8',
+        '#e8e0d4',
+        '#b29e91',
+        '#9f736c',
+        '#b76254',
+        '#dfa372'
+      ]
+    },
+    {
+      name: 'roygbiv-warm',
+      colors: [
+        '#705f84',
+        '#687d99',
+        '#6c843e',
+        '#fc9a1a',
+        '#dc383a',
+        '#aa3a33',
+        '#9c4257'
+      ]
+    },
+    {
+      name: 'roygbiv-toned',
+      colors: [
+        '#817c77',
+        '#396c68',
+        '#89e3b7',
+        '#f59647',
+        '#d63644',
+        '#893f49',
+        '#4d3240'
+      ]
+    },
+    {
+      name: 'present-correct',
+      colors: [
+        '#fd3741',
+        '#fe4f11',
+        '#ff6800',
+        '#ffa61a',
+        '#ffc219',
+        '#ffd114',
+        '#fcd82e',
+        '#f4d730',
+        '#ced562',
+        '#8ac38f',
+        '#79b7a0',
+        '#72b5b1',
+        '#5b9bae',
+        '#6ba1b7',
+        '#49619d',
+        '#604791',
+        '#721e7f',
+        '#9b2b77',
+        '#ab2562',
+        '#ca2847'
+      ]
+    }
+  ];
+
+  var tundra = [
+    {
+      name: 'tundra1',
+      colors: ['#40708c', '#8e998c', '#5d3f37', '#ed6954', '#f2e9e2']
+    },
+    {
+      name: 'tundra2',
+      colors: ['#5f9e93', '#3d3638', '#733632', '#b66239', '#b0a1a4', '#e3dad2']
+    },
+    {
+      name: 'tundra3',
+      colors: [
+        '#87c3ca',
+        '#7b7377',
+        '#b2475d',
+        '#7d3e3e',
+        '#eb7f64',
+        '#d9c67a',
+        '#f3f2f2'
+      ]
+    },
+    {
+      name: 'tundra4',
+      colors: [
+        '#d53939',
+        '#b6754d',
+        '#a88d5f',
+        '#524643',
+        '#3c5a53',
+        '#7d8c7c',
+        '#dad6cd'
+      ]
+    }
+  ];
+
+  var rohlfs = [
+    {
+      name: 'rohlfs_1R',
+      colors: ['#004996', '#567bae', '#ff4c48', '#ffbcb3'],
+      stroke: '#004996',
+      background: '#fff8e7'
+    },
+    {
+      name: 'rohlfs_1Y',
+      colors: ['#004996', '#567bae', '#ffc000', '#ffdca4'],
+      stroke: '#004996',
+      background: '#fff8e7'
+    },
+    {
+      name: 'rohlfs_1G',
+      colors: ['#004996', '#567bae', '#60bf3c', '#d2deb1'],
+      stroke: '#004996',
+      background: '#fff8e7'
+    },
+    {
+      name: 'rohlfs_2',
+      colors: ['#4d3d9a', '#f76975', '#ffffff', '#eff0dd'],
+      stroke: '#211029',
+      background: '#58bdbc'
+    },
+    {
+      name: 'rohlfs_3',
+      colors: ['#abdfdf', '#fde500', '#58bdbc', '#eff0dd'],
+      stroke: '#211029',
+      background: '#f76975'
+    },
+    {
+      name: 'rohlfs_4',
+      colors: ['#fde500', '#2f2043', '#f76975', '#eff0dd'],
+      stroke: '#211029',
+      background: '#fbbeca'
+    }
+  ];
+
+  var ducci = [
+    {
+      name: 'ducci_jb',
+      colors: ['#395e54', '#e77b4d', '#050006', '#e55486'],
+      stroke: '#050006',
+      background: '#efe0bc'
+    },
+    {
+      name: 'ducci_a',
+      colors: ['#809498', '#d3990e', '#000000', '#ecddc5'],
+      stroke: '#ecddc5',
+      background: '#863f52'
+    },
+    {
+      name: 'ducci_b',
+      colors: ['#ecddc5', '#79b27b', '#000000', '#ac6548'],
+      stroke: '#ac6548',
+      background: '#d5c08e'
+    },
+    {
+      name: 'ducci_d',
+      colors: ['#f3cb4d', '#f2f5e3', '#20191b', '#67875c'],
+      stroke: '#67875c',
+      background: '#433d5f'
+    },
+    {
+      name: 'ducci_e',
+      colors: ['#c37c2b', '#f6ecce', '#000000', '#386a7a'],
+      stroke: '#386a7a',
+      background: '#e3cd98'
+    },
+    {
+      name: 'ducci_f',
+      colors: ['#596f7e', '#eae6c7', '#463c21', '#f4cb4c'],
+      stroke: '#f4cb4c',
+      background: '#e67300'
+    },
+    {
+      name: 'ducci_g',
+      colors: ['#c75669', '#000000', '#11706a'],
+      stroke: '#11706a',
+      background: '#ecddc5'
+    },
+    {
+      name: 'ducci_h',
+      colors: ['#6b5c6e', '#4a2839', '#d9574a'],
+      stroke: '#d9574a',
+      background: '#ffc34b'
+    },
+    {
+      name: 'ducci_i',
+      colors: ['#e9dcad', '#143331', '#ffc000'],
+      stroke: '#ffc000',
+      background: '#a74c02'
+    },
+    {
+      name: 'ducci_j',
+      colors: ['#c47c2b', '#5f5726', '#000000', '#7e8a84'],
+      stroke: '#7e8a84',
+      background: '#ecddc5'
+    },
+    {
+      name: 'ducci_o',
+      colors: ['#c15e1f', '#e4a13a', '#000000', '#4d545a'],
+      stroke: '#4d545a',
+      background: '#dfc79b'
+    },
+    {
+      name: 'ducci_q',
+      colors: ['#4bae8c', '#d0c1a0', '#2d3538'],
+      stroke: '#2d3538',
+      background: '#d06440'
+    },
+    {
+      name: 'ducci_u',
+      colors: ['#f6d700', '#f2d692', '#000000', '#5d3552'],
+      stroke: '#5d3552',
+      background: '#ff7426'
+    },
+    {
+      name: 'ducci_v',
+      colors: ['#c65f75', '#d3990e', '#000000', '#597e7a'],
+      stroke: '#597e7a',
+      background: '#f6eccb'
+    },
+    {
+      name: 'ducci_x',
+      colors: ['#dd614a', '#f5cedb', '#1a1e4f'],
+      stroke: '#1a1e4f',
+      background: '#fbb900'
+    }
+  ];
+
+  var judson = [
+    {
+      name: 'jud_playground',
+      colors: ['#f04924', '#fcce09', '#408ac9'],
+      stroke: '#2e2925',
+      background: '#ffffff'
+    },
+    {
+      name: 'jud_horizon',
+      colors: ['#f8c3df', '#f2e420', '#28b3d0', '#648731', '#ef6a7d'],
+      stroke: '#030305',
+      background: '#f2f0e1'
+    },
+    {
+      name: 'jud_mural',
+      colors: ['#ca3122', '#e5af16', '#4a93a2', '#0e7e39', '#e2b9bd'],
+      stroke: '#1c1616',
+      background: '#e3ded8'
+    },
+    {
+      name: 'jud_cabinet',
+      colors: ['#f0afb7', '#f6bc12', '#1477bb', '#41bb9b'],
+      stroke: '#020508',
+      background: '#d6d6cc'
+    }
+  ];
+
+  var iivonen = [
+    {
+      name: 'iiso_zeitung',
+      colors: ['#ee8067', '#f3df76', '#00a9c0', '#f7ab76'],
+      stroke: '#111a17',
+      background: '#f5efcb'
+    },
+    {
+      name: 'iiso_curcuit',
+      colors: ['#f0865c', '#f2b07b', '#6bc4d2', '#1a3643'],
+      stroke: '#0f1417',
+      background: '#f0f0e8'
+    },
+    {
+      name: 'iiso_airlines',
+      colors: ['#fe765a', '#ffb468', '#4b588f', '#faf1e0'],
+      stroke: '#1c1616',
+      background: '#fae5c8'
+    },
+    {
+      name: 'iiso_daily',
+      colors: ['#e76c4a', '#f0d967', '#7f8cb6', '#1daeb1', '#ef9640'],
+      stroke: '#000100',
+      background: '#e2ded2'
+    }
+  ];
+
+  const palettes = [
+    {
+      name: 'frozen-rose',
+      colors: ['#29368f', '#e9697b', '#1b164d', '#f7d996'],
+      background: '#f2e8e4'
+    },
+    {
+      name: 'winter-night',
+      colors: ['#122438', '#dd672e', '#87c7ca', '#ebebeb'],
+      background: '#ebebeb'
+    },
+    {
+      name: 'saami',
+      colors: ['#eab700', '#e64818', '#2c6393', '#eecfca'],
+      background: '#e7e6e4'
+    },
+    {
+      name: 'knotberry1',
+      colors: ['#20342a', '#f74713', '#686d2c', '#e9b4a6'],
+      background: '#e5ded8'
+    },
+    {
+      name: 'knotberry2',
+      colors: ['#1d3b1a', '#eb4b11', '#e5bc00', '#f29881'],
+      background: '#eae2d0'
+    },
+    {
+      name: 'tricolor',
+      colors: ['#ec643b', '#56b7ab', '#f8cb57', '#1f1e43'],
+      background: '#f7f2df'
+    },
+    {
+      name: 'foxshelter',
+      colors: ['#ff3931', '#007861', '#311f27', '#bab9a4'],
+      background: '#dddddd'
+    },
+    {
+      name: 'hermes',
+      colors: ['#253852', '#51222f', '#b53435', '#ecbb51'],
+      background: '#eeccc2'
+    }
+  ];
+
+  const pals = palettes.concat(
+    ranganath,
+    roygbivs,
+    tundra,
+    colourscafe,
+    rohlfs,
+    ducci,
+    judson,
+    iivonen
+  );
+
+  var palettes$1 = pals.map(p => {
+    p.size = p.colors.length;
+    return p;
+  });
+
+  function getRandom() {
+    return palettes$1[Math.floor(Math.random() * palettes$1.length)];
+  }
+
+  function get$1(name) {
+    return palettes$1.find(pal => pal.name == name);
+  }
+
+  function getNames() {
+    return palettes$1.map(p => p.name);
+  }
+
+  function dist(p1, p2) {
+    return Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2));
+  }
+
+  function angle_of_direction(p1, p2) {
+    return Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+  }
+
+  function point_at_distance_and_angle(p1, dist, rad) {
+    return [p1[0] + dist * Math.cos(rad), p1[1] + dist * Math.sin(rad)];
+  }
+
+  function point_at_distance_towards_direction(p1, dist, pdir) {
+    return point_at_distance_and_angle(p1, dist, angle_of_direction(p1, pdir));
+  }
+
+  const init_accuracy = Math.PI / 25;
+  const max = 200;
+  let step_length;
+
+  function roughLine(a, b, length = 40) {
+    step_length = length;
+    let start = { a: a, cp1: null, cp2: null };
+    const points = [start];
+
+    while (dist(points[points.length - 1].a, b) != 0 && points.length < max) {
+      const pnt = getNextPoint(points, step_length, b);
+      points.push(pnt);
+    }
+
+    return points;
+  }
+
+  function getNextPoint(points, step_dist, goal) {
+    let current = points[points.length - 1].a;
+    let remaining_distance = dist(current, goal);
+
+    let start = points[0].a;
+    let total_distance = dist(start, goal);
+
+    let remaining_ratio = remaining_distance / total_distance;
+    let step = step_dist * (Math.random() * 0.5 + 1);
+    if (remaining_distance <= step * 1.5)
+      return { a: goal, cp1: null, cp2: null };
+
+    let accuracy = remaining_ratio * init_accuracy;
+
+    let ideal_direction = angle_of_direction(current, goal);
+    let direction_offset = Math.random() * accuracy - accuracy / 2;
+    let direction = ideal_direction + direction_offset;
+
+    let next_a = point_at_distance_and_angle(current, step, direction);
+    let next_cp1 = point_at_distance_towards_direction(next_a, -step / 3, goal);
+    let next_cp2 = point_at_distance_towards_direction(
+      next_a,
+      Math.min(step, dist(next_a, goal)) / 3,
+      goal
+    );
+
+    return { a: next_a, cp1: next_cp1, cp2: next_cp2 };
+  }
+
   var presets = {
     remembered: {
       Default: {
         '0': {
-          rows: 5,
-          columns: 5,
-          padding: 40,
-          cell_size: 10,
+          rows: 1,
+          columns: 1,
+          padding: 50,
+          cell_size: 30,
           radius_x: 14,
           radius_y: 14,
           roundness: 0.1,
@@ -2767,16 +3268,32 @@
           h_symmetric: true,
           v_symmetric: false,
           display_stroke: true,
-          background_color: '#eeeee5',
-          color1: '#6c843e',
-          color2: '#dc383a',
-          color3: '#687d99',
-          color4: '#705f84',
-          color5: '#fc9a1a',
-          color6: '#aa3a33',
-          color7: '#9c4257',
           color_mode: 'group',
           group_size: 0.85
+        }
+      },
+      saami: {
+        0: {
+          rows: 4,
+          columns: 6,
+          padding: 60,
+          cell_size: 25,
+          cell_pad: -2,
+          radius_x: 8,
+          radius_y: 9,
+          simple: false,
+          roundness: 0.1,
+          solidness: 0.5,
+          compactness: 0.9,
+          block_size: 0.8200000000000001,
+          chance_vertical: 0.5,
+          h_symmetric: false,
+          v_symmetric: false,
+          display_stroke: false,
+          display_fill: true,
+          palette: 'saami',
+          color_mode: 'group',
+          group_size: 0.76
         }
       },
       mural: {
@@ -2858,10 +3375,8 @@
 
   window.onload = function() {
     var canvas = document.createElement('canvas');
-    canvas.width = '3600';
-    canvas.height = '2000';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
+    canvas.width = '4200';
+    canvas.height = '5940';
 
     var container = document.getElementById('sketch');
     container.appendChild(canvas);
@@ -2871,10 +3386,11 @@
       ctx.strokeStyle = '#1c2021';
 
       let options = {
-        cell_size: 10,
+        cell_size: 30,
+        cell_pad: 10,
         radius_x: 14,
         radius_y: 14,
-        h_symmetric: true,
+        h_symmetric: false,
         v_symmetric: false,
         simple: false,
         roundness: 0.1,
@@ -2882,20 +3398,14 @@
         compactness: 0.9,
         block_size: 0.82,
         chance_vertical: 0.5,
-        rows: 5,
+        rows: 3,
         columns: 5,
         padding: 40,
         display_stroke: true,
-        color1: '#6c843e',
-        color2: '#dc383a',
-        color3: '#687d99',
-        color4: '#705f84',
-        color5: '#fc9a1a',
-        color6: '#aa3a33',
-        color7: '#9c4257',
+        display_fill: true,
+        palette: getRandom().name,
         color_mode: 'group',
-        group_size: 0.85,
-        background_color: '#eeeee5'
+        group_size: 0.85
       };
 
       let apparatus = setup_apparatus(options);
@@ -2909,7 +3419,8 @@
       f1.add(options, 'padding', 0, 300, 15).onFinishChange(run);
 
       let f2 = gui$$1.addFolder('Apparatus Shape');
-      f2.add(options, 'cell_size', 2, 15, 1).onFinishChange(run);
+      f2.add(options, 'cell_size', 2, 45, 1).onFinishChange(run);
+      f2.add(options, 'cell_pad', -20, 25, 1).onFinishChange(run);
       f2.add(options, 'radius_x', 5, 100, 1).onFinishChange(run);
       f2.add(options, 'radius_y', 5, 100, 1).onFinishChange(run);
       f2.add(options, 'simple').onFinishChange(run);
@@ -2923,14 +3434,8 @@
 
       let f3 = gui$$1.addFolder('Apparatus Looks');
       f3.add(options, 'display_stroke').onFinishChange(run);
-      f3.addColor(options, 'background_color').onFinishChange(run);
-      f3.addColor(options, 'color1').onFinishChange(run);
-      f3.addColor(options, 'color2').onFinishChange(run);
-      f3.addColor(options, 'color3').onFinishChange(run);
-      f3.addColor(options, 'color4').onFinishChange(run);
-      f3.addColor(options, 'color5').onFinishChange(run);
-      f3.addColor(options, 'color6').onFinishChange(run);
-      f3.addColor(options, 'color7').onFinishChange(run);
+      f3.add(options, 'display_fill').onFinishChange(run);
+      f3.add(options, 'palette', getNames()).onFinishChange(run);
       f3.add(options, 'color_mode', [
         'single',
         'main',
@@ -2946,15 +3451,20 @@
     }
 
     function setup_apparatus(options) {
+      let colors = get$1(options.palette).colors;
+      /*
       let colors = [
-        options.color1,
-        options.color2,
-        options.color3,
-        options.color4,
-        options.color5,
-        options.color6,
-        options.color7
+        '#02857e',
+        '#f4a82d',
+        '#e7cdb5',
+        '#ee8d8d',
+        '#ea5d60',
+        '#bc2727',
+        '#ad4b26',
+        '#645f86',
+        '#0b4a85'
       ];
+      */
 
       let opts = {
         initiate_chance: options.compactness,
@@ -2974,56 +3484,147 @@
     }
 
     function display(ctx, apparatus, options) {
-      let padding = 2 * options.padding - 50;
+      let padding = 2 * options.padding - 150;
       let nx = options.columns;
       let ny = options.rows;
 
       let justify_x = new justeer(
         canvas.width,
         nx,
-        apparatus.xdim * options.cell_size
+        apparatus.xdim * (options.cell_size + options.cell_pad)
       );
       let justify_y = new justeer(
         canvas.height,
         ny,
-        apparatus.ydim * options.cell_size
+        apparatus.ydim * (options.cell_size + options.cell_pad)
       );
       let place_x = justify_x.placement_given_spacing_between_elements(padding);
-      let place_y = justify_y.placement_given_spacing_between_elements(padding);
+      let place_y = justify_y.placement_given_spacing_between_elements(
+        (Math.sqrt(3) * padding) / 2
+      );
 
-      ctx.fillStyle = options.background_color;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = get$1(options.palette).background;
+      //ctx.fillStyle = '#f3e5dd';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < ny; i++) {
-        for (let j = 0; j < nx; j++) {
+        for (let j = 0; j < nx - (i % 2); j++) {
           ctx.save();
           ctx.translate(place_x(j), place_y(i));
+          const offset =
+            (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) /
+            2;
+          ctx.translate(i % 2 == 0 ? 0 : offset, 0);
           let grid = apparatus.generate();
           ctx.lineCap = 'square';
-          ctx.lineWidth = '3';
-          display_apparatus2(
-            ctx,
-            grid,
-            options.cell_size,
-            options.display_stroke
-          );
+          ctx.lineWidth = '2';
+          display_apparatus2(ctx, grid, options);
           ctx.restore();
         }
       }
     }
 
-    function display_apparatus2(ctx, rects, size, display_stroke) {
-      rects.forEach(rect => {
-        ctx.beginPath();
-        ctx.rect(
-          rect.x1 * size - 1,
-          rect.y1 * size - 1,
-          rect.w * size + 1,
-          rect.h * size + 1
+    function display_apparatus2(ctx, rects, options) {
+      const { cell_size, cell_pad, display_stroke, display_fill } = options;
+      let stroke_color = get$1(options.palette).stroke;
+      stroke_color = stroke_color ? stroke_color : '#0e0e0e';
+
+      const roughRects = rects.map(rect => {
+        const points = getRectPoints(
+          rect.x1 * (cell_size + cell_pad),
+          rect.y1 * (cell_size + cell_pad),
+          rect.w * (cell_size + cell_pad) - cell_pad,
+          rect.h * (cell_size + cell_pad) - cell_pad
         );
-        ctx.fillStyle = rect.col;
-        ctx.fill();
-        if (display_stroke) ctx.stroke();
+        return { ...rect, points };
       });
+
+      if (display_fill) {
+        ctx.globalCompositeOperation = 'normal';
+        roughRects.forEach(rect => {
+          drawPoints(ctx, rect.points, '#fff', null);
+        });
+        ctx.globalCompositeOperation = 'multiply';
+        roughRects.forEach(rect => {
+          drawPoints(ctx, rect.points, rect.col, null);
+        });
+      }
+
+      if (display_stroke) {
+        roughRects.forEach(rect => {
+          if (Math.random() < 0.5) {
+            const points = getRectPoints(
+              rect.x1 * (cell_size + cell_pad) - 5,
+              rect.y1 * (cell_size + cell_pad) - 5,
+              rect.w * (cell_size + cell_pad) - cell_pad + 10,
+              rect.h * (cell_size + cell_pad) - cell_pad + 10
+            );
+            const hatchPoints = getHatchPoints(
+              rect.x1 * (cell_size + cell_pad),
+              rect.y1 * (cell_size + cell_pad),
+              rect.w * (cell_size + cell_pad) - cell_pad,
+              rect.h * (cell_size + cell_pad) - cell_pad
+            );
+            //drawPoints(ctx, points, null, stroke_color);
+            hatchRect(ctx, hatchPoints, rect.col);
+          }
+        });
+      }
+    }
+
+    function getRectPoints(px, py, sx, sy) {
+      const north = roughLine([px, py], [px + sx, py]);
+      const east = roughLine([px + sx, py], [px + sx, py + sy]);
+      const south = roughLine([px + sx, py + sy], [px, py + sy]);
+      const west = roughLine([px, py + sy], [px, py]);
+
+      return [...north, ...east, ...south, ...west];
+    }
+
+    function getHatchPoints(px, py, sx, sy) {
+      const north = roughLine([px, py], [px + sx, py], 5);
+      const south = roughLine([px, py + sy], [px + sx, py + sy], 5);
+
+      return { north, south };
+    }
+
+    function hatchRect(ctx, points, strokeCol) {
+      const north = points.north;
+      const south = points.south;
+
+      const number_of_hatches = Math.min(north.length, south.length);
+
+      const hatches = [];
+      for (let i = 0; i < number_of_hatches; i++) {
+        hatches.push(roughLine(north[i].a, south[i].a));
+      }
+
+      hatches.forEach(hatch => drawPoints(ctx, hatch, null, strokeCol));
+    }
+
+    function drawPoints(ctx, points, col, strokeCol) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].a[0], points[0].a[1]);
+      for (let i = 1; i < points.length; i++) {
+        let p1 = points[i - 1];
+        let p2 = points[i];
+        ctx.bezierCurveTo(
+          p1.cp2 ? p1.cp2[0] : p1.a[0],
+          p1.cp2 ? p1.cp2[1] : p1.a[1],
+          p2.cp1 ? p2.cp1[0] : p2.a[0],
+          p2.cp1 ? p2.cp1[1] : p2.a[1],
+          p2.a[0],
+          p2.a[1]
+        );
+      }
+      if (col != null) {
+        ctx.fillStyle = col;
+        ctx.fill();
+      }
+      if (strokeCol != null) {
+        ctx.strokeStyle = strokeCol;
+        ctx.stroke();
+      }
     }
   };
 
