@@ -42,7 +42,8 @@ window.onload = function() {
       display_fill: true,
       palette: tome.getRandom().name,
       color_mode: 'group',
-      group_size: 0.85
+      group_size: 0.85,
+      save_image: save_image
     };
 
     let gui = new dat.GUI({ load: presets });
@@ -78,12 +79,22 @@ window.onload = function() {
     ]).onChange(run);
     f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
 
+    let f4 = gui.addFolder('Controller');
+    f4.add(options, 'save_image');
+
     let apparatus = setup_apparatus(options);
     display(ctx, apparatus, options);
 
     function run() {
       apparatus = setup_apparatus(options);
       display(ctx, apparatus, options);
+    }
+
+    function save_image() {
+      var image = canvas
+        .toDataURL('image/jpeg', 1.0)
+        .replace('image/jpeg', 'image/octet-stream');
+      window.location.href = image;
     }
   }
 
