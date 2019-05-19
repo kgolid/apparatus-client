@@ -3330,6 +3330,7 @@
         padding: 40,
         display_stroke: true,
         display_fill: true,
+        random_palette: false,
         palette: getRandom().name,
         color_mode: 'group',
         group_size: 0.85,
@@ -3360,6 +3361,7 @@
       let f3 = gui$$1.addFolder('Apparatus Looks');
       f3.add(options, 'display_stroke').onFinishChange(run);
       f3.add(options, 'display_fill').onFinishChange(run);
+      f3.add(options, 'random_palette').onFinishChange(run);
       f3.add(options, 'palette', getNames()).onFinishChange(run);
       f3.add(options, 'color_mode', [
         'single',
@@ -3452,6 +3454,7 @@
             (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) /
             2;
           ctx.translate(i % 2 == 0 ? 0 : offset, 0);
+          if (options.random_palette) apparatus.colors = getRandom().colors;
           let grid = apparatus.generate();
           ctx.lineCap = 'square';
           ctx.lineWidth = '2';
