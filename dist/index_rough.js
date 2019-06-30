@@ -2748,7 +2748,111 @@
     });
   }
   var GUI$1 = GUI;
-  //# sourceMappingURL=dat.gui.module.js.map
+
+  var misc = [
+    {
+      name: 'frozen-rose',
+      colors: ['#29368f', '#e9697b', '#1b164d', '#f7d996'],
+      background: '#f2e8e4'
+    },
+    {
+      name: 'winter-night',
+      colors: ['#122438', '#dd672e', '#87c7ca', '#ebebeb'],
+      background: '#ebebeb'
+    },
+    {
+      name: 'saami',
+      colors: ['#eab700', '#e64818', '#2c6393', '#eecfca'],
+      background: '#e7e6e4'
+    },
+    {
+      name: 'knotberry1',
+      colors: ['#20342a', '#f74713', '#686d2c', '#e9b4a6'],
+      background: '#e5ded8'
+    },
+    {
+      name: 'knotberry2',
+      colors: ['#1d3b1a', '#eb4b11', '#e5bc00', '#f29881'],
+      background: '#eae2d0'
+    },
+    {
+      name: 'tricolor',
+      colors: ['#ec643b', '#56b7ab', '#f8cb57', '#1f1e43'],
+      background: '#f7f2df'
+    },
+    {
+      name: 'foxshelter',
+      colors: ['#ff3931', '#007861', '#311f27', '#bab9a4'],
+      background: '#dddddd'
+    },
+    {
+      name: 'hermes',
+      colors: ['#253852', '#51222f', '#b53435', '#ecbb51'],
+      background: '#eeccc2'
+    },
+    {
+      name: 'olympia',
+      colors: ['#ff3250', '#ffb33a', '#008c36', '#0085c6', '#4c4c4c'],
+      stroke: '#0b0b0b',
+      background: '#faf2e5'
+    },
+    {
+      name: 'byrnes',
+      colors: ['#c54514', '#dca215', '#23507f'],
+      stroke: '#0b0b0b',
+      background: '#e8e7d4'
+    },
+    {
+      name: 'butterfly',
+      colors: ['#f40104', '#f6c0b3', '#99673a', '#f0f1f4'],
+      stroke: '#191e36',
+      background: '#191e36'
+    },
+    {
+      name: 'floratopia',
+      colors: ['#bf4a2b', '#cd902a', '#4e4973', '#f5d4bc'],
+      stroke: '#1e1a43',
+      background: '#1e1a43'
+    },
+    {
+      name: 'verena',
+      colors: ['#f1594a', '#f5b50e', '#14a160', '#2969de', '#885fa4'],
+      stroke: '#1a1a1a',
+      background: '#e2e6e8'
+    },
+    {
+      name: 'empusa',
+      colors: [
+        '#c92a28',
+        '#e69301',
+        '#1f8793',
+        '#13652b',
+        '#e7d8b0',
+        '#48233b',
+        '#e3b3ac'
+      ],
+      stroke: '#1a1a1a',
+      background: '#f0f0f2'
+    },
+    {
+      name: 'florida_citrus',
+      colors: ['#ea7251', '#ebf7f0', '#02aca5'],
+      stroke: '#050100',
+      background: '#9ae2d3'
+    },
+    {
+      name: 'lemon_citrus',
+      colors: ['#e2d574', '#f1f4f7', '#69c5ab'],
+      stroke: '#463231',
+      background: '#f79eac'
+    },
+    {
+      name: 'yuma_punk',
+      colors: ['#f05e3b', '#ebdec4', '#ffdb00'],
+      stroke: '#ebdec4',
+      background: '#161616'
+    }
+  ];
 
   var colourscafe = [
     {
@@ -3087,7 +3191,7 @@
       name: 'jud_cabinet',
       colors: ['#f0afb7', '#f6bc12', '#1477bb', '#41bb9b'],
       stroke: '#020508',
-      background: '#d6d6cc'
+      background: '#e3ded8'
     }
   ];
 
@@ -3118,50 +3222,67 @@
     }
   ];
 
-  const palettes = [
+  var kovecses = [
     {
-      name: 'frozen-rose',
-      colors: ['#29368f', '#e9697b', '#1b164d', '#f7d996'],
-      background: '#f2e8e4'
+      name: 'kov_01',
+      colors: ['#d24c23', '#7ba6bc', '#f0c667', '#ede2b3', '#672b35', '#142a36'],
+      stroke: '#132a37',
+      background: '#108266'
     },
     {
-      name: 'winter-night',
-      colors: ['#122438', '#dd672e', '#87c7ca', '#ebebeb'],
-      background: '#ebebeb'
+      name: 'kov_02',
+      colors: ['#e8dccc', '#e94641', '#eeaeae'],
+      stroke: '#e8dccc',
+      background: '#6c96be'
     },
     {
-      name: 'saami',
-      colors: ['#eab700', '#e64818', '#2c6393', '#eecfca'],
-      background: '#e7e6e4'
+      name: 'kov_03',
+      colors: ['#e3937b', '#d93f1d', '#090d15', '#e6cca7'],
+      stroke: '#090d15',
+      background: '#558947'
     },
     {
-      name: 'knotberry1',
-      colors: ['#20342a', '#f74713', '#686d2c', '#e9b4a6'],
-      background: '#e5ded8'
+      name: 'kov_04',
+      colors: ['#d03718', '#292b36', '#33762f', '#ead7c9', '#ce7028', '#689d8d'],
+      stroke: '#292b36',
+      background: '#deb330'
     },
     {
-      name: 'knotberry2',
-      colors: ['#1d3b1a', '#eb4b11', '#e5bc00', '#f29881'],
-      background: '#eae2d0'
-    },
-    {
-      name: 'tricolor',
-      colors: ['#ec643b', '#56b7ab', '#f8cb57', '#1f1e43'],
-      background: '#f7f2df'
-    },
-    {
-      name: 'foxshelter',
-      colors: ['#ff3931', '#007861', '#311f27', '#bab9a4'],
-      background: '#dddddd'
-    },
-    {
-      name: 'hermes',
-      colors: ['#253852', '#51222f', '#b53435', '#ecbb51'],
-      background: '#eeccc2'
+      name: 'kov_05',
+      colors: ['#de3f1a', '#de9232', '#007158', '#e6cdaf', '#869679'],
+      stroke: '#010006',
+      background: '#7aa5a6'
     }
   ];
 
-  const pals = palettes.concat(
+  var duotone = [
+    {
+      name: 'dt01',
+      colors: ['#172a89', '#f7f7f3'],
+      stroke: '#172a89',
+      background: '#f3abb0'
+    },
+    {
+      name: 'dt02',
+      colors: ['#302956', '#f3c507'],
+      stroke: '#302956',
+      background: '#eee3d3'
+    },
+    {
+      name: 'dt03',
+      colors: ['#000000', '#a7a7a7'],
+      stroke: '#000000',
+      background: '#0a5e78'
+    },
+    {
+      name: 'iiso_daily',
+      colors: ['#50978e', '#f7f0df'],
+      stroke: '#000000',
+      background: '#f7f0df'
+    }
+  ];
+
+  const pals = misc.concat(
     ranganath,
     roygbivs,
     tundra,
@@ -3169,24 +3290,27 @@
     rohlfs,
     ducci,
     judson,
-    iivonen
+    iivonen,
+    kovecses,
+    duotone
   );
 
-  var palettes$1 = pals.map(p => {
+  var palettes = pals.map(p => {
     p.size = p.colors.length;
     return p;
   });
 
   function getRandom() {
-    return palettes$1[Math.floor(Math.random() * palettes$1.length)];
+    return palettes[Math.floor(Math.random() * palettes.length)];
   }
 
   function get$1(name) {
-    return palettes$1.find(pal => pal.name == name);
+    if (name === undefined) return getRandom();
+    return palettes.find(pal => pal.name == name);
   }
 
   function getNames() {
-    return palettes$1.map(p => p.name);
+    return palettes.map(p => p.name);
   }
 
   function dist(p1, p2) {
@@ -3276,6 +3400,30 @@
           color_mode: 'group',
           group_size: 0.7
         }
+      },
+      apartments: {
+        '0': {
+          rows: 10,
+          columns: 7,
+          padding: 90,
+          cell_size: 20,
+          cell_pad: -2,
+          radius_x: 10,
+          radius_y: 10,
+          simple: true,
+          roundness: 0.1,
+          solidness: 0.5,
+          compactness: 1,
+          block_size: 0.86,
+          chance_vertical: 0.4,
+          h_symmetric: false,
+          v_symmetric: false,
+          display_stroke: false,
+          display_fill: true,
+          palette: 'ducci_j',
+          color_mode: 'group',
+          group_size: 0.7
+        }
       }
     },
     closed: false,
@@ -3291,6 +3439,11 @@
         folders: {}
       },
       'Apparatus Looks': {
+        preset: 'Default',
+        closed: false,
+        folders: {}
+      },
+      Controller: {
         preset: 'Default',
         closed: false,
         folders: {}
@@ -3392,19 +3545,6 @@
 
     function setup_apparatus(options) {
       let colors = get$1(options.palette).colors;
-      /*
-      let colors = [
-        '#02857e',
-        '#f4a82d',
-        '#e7cdb5',
-        '#ee8d8d',
-        '#ea5d60',
-        '#bc2727',
-        '#ad4b26',
-        '#645f86',
-        '#0b4a85'
-      ];
-      */
 
       let opts = {
         initiate_chance: options.compactness,
@@ -3437,6 +3577,7 @@
         canvas.height,
         ny,
         apparatus.ydim * (options.cell_size + options.cell_pad)
+        //(Math.sqrt(3) * apparatus.ydim * (options.cell_size + options.cell_pad)) / 2
       );
       let place_x = justify_x.placement_given_spacing_between_elements(padding);
       let place_y = justify_y.placement_given_spacing_between_elements(

@@ -13,8 +13,6 @@ window.onload = function() {
   canvas.style.width = '100%';
   canvas.style.height = '100%';
 
-  var pad = 10;
-
   var container = document.getElementById('sketch');
   container.appendChild(canvas);
 
@@ -102,19 +100,6 @@ window.onload = function() {
 
   function setup_apparatus(options) {
     let colors = tome.get(options.palette).colors;
-    /*
-    let colors = [
-      '#02857e',
-      '#f4a82d',
-      '#e7cdb5',
-      '#ee8d8d',
-      '#ea5d60',
-      '#bc2727',
-      '#ad4b26',
-      '#645f86',
-      '#0b4a85'
-    ];
-    */
 
     let opts = {
       initiate_chance: options.compactness,
@@ -147,6 +132,7 @@ window.onload = function() {
       canvas.height,
       ny,
       apparatus.ydim * (options.cell_size + options.cell_pad)
+      //(Math.sqrt(3) * apparatus.ydim * (options.cell_size + options.cell_pad)) / 2
     );
     let place_x = justify_x.placement_given_spacing_between_elements(padding);
     let place_y = justify_y.placement_given_spacing_between_elements(
