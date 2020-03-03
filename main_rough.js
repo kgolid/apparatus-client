@@ -48,7 +48,7 @@ window.onload = function() {
     let gui = new dat.GUI({ load: presets });
     gui.remember(options);
     let f1 = gui.addFolder('Layout');
-    f1.add(options, 'rows', 1, 12, 1).onFinishChange(run);
+    f1.add(options, 'rows', 1, 13, 1).onFinishChange(run);
     f1.add(options, 'columns', 1, 12, 1).onFinishChange(run);
     f1.add(options, 'padding', 0, 300, 15).onFinishChange(run);
 
@@ -71,12 +71,7 @@ window.onload = function() {
     f3.add(options, 'display_fill').onFinishChange(run);
     f3.add(options, 'random_palette').onFinishChange(run);
     f3.add(options, 'palette', tome.getNames()).onFinishChange(run);
-    f3.add(options, 'color_mode', [
-      'single',
-      'main',
-      'group',
-      'random'
-    ]).onChange(run);
+    f3.add(options, 'color_mode', ['single', 'main', 'group', 'random']).onChange(run);
     f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
 
     let f4 = gui.addFolder('Controller');
@@ -142,14 +137,14 @@ window.onload = function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = tome.get(options.palette).background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     for (let i = 0; i < ny; i++) {
-      for (let j = 0; j < nx - (i % 2); j++) {
+      for (let j = 0; j < nx - ((i + 1) % 2); j++) {
         ctx.save();
         ctx.translate(place_x(j), place_y(i));
         const offset =
-          (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) /
-          2;
-        ctx.translate(i % 2 == 0 ? 0 : offset, 0);
+          (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) / 2;
+        ctx.translate(i % 2 !== 0 ? 0 : offset, 0);
         if (options.random_palette) apparatus.colors = tome.getRandom().colors;
         let grid = apparatus.generate();
         ctx.lineCap = 'square';
