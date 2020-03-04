@@ -2,11 +2,11 @@ export default {
   remembered: {
     Default: {
       '0': {
-        rows: 5,
-        columns: 8,
+        rows: 7,
+        columns: 10,
         padding: 30,
-        cell_size: 22,
-        cell_pad: -2,
+        cell_size: 16,
+        cell_pad: 5,
         radius_x: 8,
         radius_y: 10,
         simple: false,
@@ -19,7 +19,7 @@ export default {
         v_symmetric: false,
         display_stroke: false,
         display_fill: true,
-        palette: 'knotberry2',
+        palette: 'revolucion',
         color_mode: 'group',
         group_size: 0.7
       }
