@@ -1,5 +1,6 @@
 import ApparatusBuilder from 'apparatus-generator';
 import Justeer from 'justeer';
+import Simplex from 'simplex-noise';
 import * as dat from 'dat.gui';
 import * as tome from 'chromotome';
 
@@ -8,10 +9,12 @@ import presets from './presets_rough.js';
 
 window.onload = function() {
   var canvas = document.createElement('canvas');
-  canvas.width = '3200';
-  canvas.height = '1800';
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
+
+  canvas.width = '6000';
+  canvas.height = '5000';
+
+  canvas.style.width = '1200px';
+  canvas.style.height = '1000px';
 
   var container = document.getElementById('sketch');
   container.appendChild(canvas);
@@ -21,7 +24,7 @@ window.onload = function() {
     ctx.strokeStyle = '#1c2021';
 
     let options = {
-      cell_size: 30,
+      cell_size: 10,
       cell_pad: 10,
       radius_x: 14,
       radius_y: 14,
@@ -42,14 +45,16 @@ window.onload = function() {
       palette: tome.getRandom().name,
       color_mode: 'group',
       group_size: 0.85,
+      use_simplex: false,
+      rate_of_change: 0.05,
       save_image: save_image
     };
 
     let gui = new dat.GUI({ load: presets });
     gui.remember(options);
     let f1 = gui.addFolder('Layout');
-    f1.add(options, 'rows', 1, 13, 1).onFinishChange(run);
-    f1.add(options, 'columns', 1, 12, 1).onFinishChange(run);
+    f1.add(options, 'rows', 1, 20, 1).onFinishChange(run);
+    f1.add(options, 'columns', 1, 20, 1).onFinishChange(run);
     f1.add(options, 'padding', 0, 300, 15).onFinishChange(run);
 
     let f2 = gui.addFolder('Apparatus Shape');
@@ -65,6 +70,8 @@ window.onload = function() {
     f2.add(options, 'chance_vertical', 0, 1, 0.1).onFinishChange(run);
     f2.add(options, 'h_symmetric').onFinishChange(run);
     f2.add(options, 'v_symmetric').onFinishChange(run);
+    f2.add(options, 'use_simplex').onFinishChange(run);
+    f2.add(options, 'rate_of_change', 0, 0.1, 0.005).onFinishChange(run);
 
     let f3 = gui.addFolder('Apparatus Looks');
     f3.add(options, 'display_stroke').onFinishChange(run);
@@ -94,7 +101,8 @@ window.onload = function() {
   }
 
   function setup_apparatus(options) {
-    let colors = tome.get(options.palette).colors;
+    const colors = tome.get(options.palette).colors;
+    const simplex = options.use_simplex ? new Simplex('hello') : null;
 
     let opts = {
       initiate_chance: options.compactness,
@@ -107,7 +115,9 @@ window.onload = function() {
       solidness: options.solidness,
       colors: colors,
       color_mode: options.color_mode,
-      group_size: options.group_size
+      group_size: options.group_size,
+      simplex: simplex,
+      rate_of_change: options.rate_of_change
     };
 
     return new ApparatusBuilder(options.radius_x, options.radius_y, opts);
@@ -146,7 +156,7 @@ window.onload = function() {
           (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) / 2;
         ctx.translate(i % 2 !== 0 ? 0 : offset, 0);
         if (options.random_palette) apparatus.colors = tome.getRandom().colors;
-        let grid = apparatus.generate();
+        let grid = apparatus.generate(null, null, false, i * nx + j, 0);
         ctx.lineCap = 'square';
         ctx.lineWidth = '2';
         display_apparatus2(ctx, grid, options);
@@ -184,10 +194,10 @@ window.onload = function() {
     if (display_stroke) {
       roughRects.forEach(rect => {
         const points = getRectPoints(
-          rect.x1 * (cell_size + cell_pad) + 4,
-          rect.y1 * (cell_size + cell_pad) + 4,
-          rect.w * (cell_size + cell_pad) - cell_pad - 8,
-          rect.h * (cell_size + cell_pad) - cell_pad - 8
+          rect.x1 * (cell_size + cell_pad) + 2,
+          rect.y1 * (cell_size + cell_pad) + 2,
+          rect.w * (cell_size + cell_pad) - cell_pad - 4,
+          rect.h * (cell_size + cell_pad) - cell_pad - 4
         );
         const hatchPoints = getHatchPoints(
           rect.x1 * (cell_size + cell_pad),
