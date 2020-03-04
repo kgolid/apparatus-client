@@ -3,6 +3,188 @@
   factory();
 }(function () { 'use strict';
 
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var seedRandom = createCommonjsModule(function (module) {
+
+  var width = 256;// each RC4 output is 0 <= x < 256
+  var chunks = 6;// at least six RC4 outputs for each double
+  var digits = 52;// there are 52 significant digits in a double
+  var pool = [];// pool: entropy pool starts empty
+  var GLOBAL = typeof commonjsGlobal === 'undefined' ? window : commonjsGlobal;
+
+  //
+  // The following constants are related to IEEE 754 limits.
+  //
+  var startdenom = Math.pow(width, chunks),
+      significance = Math.pow(2, digits),
+      overflow = significance * 2,
+      mask = width - 1;
+
+
+  var oldRandom = Math.random;
+
+  //
+  // seedrandom()
+  // This is the seedrandom function described above.
+  //
+  module.exports = function(seed, options) {
+    if (options && options.global === true) {
+      options.global = false;
+      Math.random = module.exports(seed, options);
+      options.global = true;
+      return Math.random;
+    }
+    var use_entropy = (options && options.entropy) || false;
+    var key = [];
+
+    // Flatten the seed string or build one from local entropy if needed.
+    var shortseed = mixkey(flatten(
+      use_entropy ? [seed, tostring(pool)] :
+      0 in arguments ? seed : autoseed(), 3), key);
+
+    // Use the seed to initialize an ARC4 generator.
+    var arc4 = new ARC4(key);
+
+    // Mix the randomness into accumulated entropy.
+    mixkey(tostring(arc4.S), pool);
+
+    // Override Math.random
+
+    // This function returns a random double in [0, 1) that contains
+    // randomness in every bit of the mantissa of the IEEE 754 value.
+
+    return function() {         // Closure to return a random double:
+      var n = arc4.g(chunks),             // Start with a numerator n < 2 ^ 48
+          d = startdenom,                 //   and denominator d = 2 ^ 48.
+          x = 0;                          //   and no 'extra last byte'.
+      while (n < significance) {          // Fill up all significant digits by
+        n = (n + x) * width;              //   shifting numerator and
+        d *= width;                       //   denominator and generating a
+        x = arc4.g(1);                    //   new least-significant-byte.
+      }
+      while (n >= overflow) {             // To avoid rounding up, before adding
+        n /= 2;                           //   last byte, shift everything
+        d /= 2;                           //   right using integer Math until
+        x >>>= 1;                         //   we have exactly the desired bits.
+      }
+      return (n + x) / d;                 // Form the number within [0, 1).
+    };
+  };
+
+  module.exports.resetGlobal = function () {
+    Math.random = oldRandom;
+  };
+
+  //
+  // ARC4
+  //
+  // An ARC4 implementation.  The constructor takes a key in the form of
+  // an array of at most (width) integers that should be 0 <= x < (width).
+  //
+  // The g(count) method returns a pseudorandom integer that concatenates
+  // the next (count) outputs from ARC4.  Its return value is a number x
+  // that is in the range 0 <= x < (width ^ count).
+  //
+  /** @constructor */
+  function ARC4(key) {
+    var t, keylen = key.length,
+        me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+
+    // The empty key [] is treated as [0].
+    if (!keylen) { key = [keylen++]; }
+
+    // Set up S using the standard key scheduling algorithm.
+    while (i < width) {
+      s[i] = i++;
+    }
+    for (i = 0; i < width; i++) {
+      s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
+      s[j] = t;
+    }
+
+    // The "g" method returns the next (count) outputs as one number.
+    (me.g = function(count) {
+      // Using instance members instead of closure state nearly doubles speed.
+      var t, r = 0,
+          i = me.i, j = me.j, s = me.S;
+      while (count--) {
+        t = s[i = mask & (i + 1)];
+        r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
+      }
+      me.i = i; me.j = j;
+      return r;
+      // For robust unpredictability discard an initial batch of values.
+      // See http://www.rsa.com/rsalabs/node.asp?id=2009
+    })(width);
+  }
+
+  //
+  // flatten()
+  // Converts an object tree to nested arrays of strings.
+  //
+  function flatten(obj, depth) {
+    var result = [], typ = (typeof obj)[0], prop;
+    if (depth && typ == 'o') {
+      for (prop in obj) {
+        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+      }
+    }
+    return (result.length ? result : typ == 's' ? obj : obj + '\0');
+  }
+
+  //
+  // mixkey()
+  // Mixes a string seed into a key that is an array of integers, and
+  // returns a shortened string seed that is equivalent to the result key.
+  //
+  function mixkey(seed, key) {
+    var stringseed = seed + '', smear, j = 0;
+    while (j < stringseed.length) {
+      key[mask & j] =
+        mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
+    }
+    return tostring(key);
+  }
+
+  //
+  // autoseed()
+  // Returns an object for autoseeding, using window.crypto if available.
+  //
+  /** @param {Uint8Array=} seed */
+  function autoseed(seed) {
+    try {
+      GLOBAL.crypto.getRandomValues(seed = new Uint8Array(width));
+      return tostring(seed);
+    } catch (e) {
+      return [+new Date, GLOBAL, GLOBAL.navigator && GLOBAL.navigator.plugins,
+              GLOBAL.screen, tostring(pool)];
+    }
+  }
+
+  //
+  // tostring()
+  // Converts an array of charcodes to a string
+  //
+  function tostring(a) {
+    return String.fromCharCode.apply(0, a);
+  }
+
+  //
+  // When seedrandom.js is loaded, we immediately mix a few bits
+  // from the built-in RNG into the entropy pool.  Because we do
+  // not want to intefere with determinstic PRNG state later,
+  // seedrandom will not call Math.random on its own again after
+  // initialization.
+  //
+  mixkey(Math.random(), pool);
+  });
+  var seedRandom_1 = seedRandom.resetGlobal;
+
   class index {
     constructor(
       width,
@@ -19,6 +201,8 @@
         color_mode = 'group',
         group_size = 0.8,
         simple = false,
+        simplex = null,
+        rate_of_change = 0.01,
       } = {}
     ) {
       this.xdim = Math.round(width * 2 + 11, 0);
@@ -36,19 +220,26 @@
       this.roundness = roundness;
       this.solidness = solidness;
       this.simple = simple;
+      this.simplex = simplex;
+      this.rate_of_change = rate_of_change;
+      this.global_seed = Math.random();
     }
 
-    generate() {
-      this.main_color = get_random(this.colors);
+    generate(initial_top = null, initial_left = null, verbose = false, idx = 0, idy = 0) {
+      this.idx = idx;
+      this.idy = idy;
+
+      this.main_color = this.get_random(this.colors, 1, 1);
       this.id_counter = 0;
 
       let grid = new Array(this.ydim + 1);
       for (var i = 0; i < grid.length; i++) {
         grid[i] = new Array(this.xdim + 1);
         for (var j = 0; j < grid[i].length; j++) {
-          if (i == 0 || j == 0) {
-            grid[i][j] = { h: false, v: false, in: false, col: null };
-          } else if (this.h_symmetric && j > grid[i].length / 2) {
+          if (i == 0 || j == 0) grid[i][j] = { h: false, v: false, in: false, col: null };
+          else if (i == 1 && initial_top != null) grid[i][j] = { ...initial_top[j], h: true };
+          else if (j == 1 && initial_left != null) grid[i][j] = { ...initial_left[i], v: true };
+          else if (this.h_symmetric && j > grid[i].length / 2) {
             grid[i][j] = deep_copy(grid[i][grid[i].length - j]);
             grid[i][j].v = grid[i][grid[i].length - j + 1].v;
           } else if (this.v_symmetric && i > grid.length / 2) {
@@ -60,7 +251,7 @@
         }
       }
       let rects = convert_linegrid_to_rectangles(grid);
-      return rects;
+      return verbose ? [rects, grid] : rects;
     }
 
     next_block(x, y, left, top) {
@@ -90,12 +281,12 @@
       // --- Block sets ----
 
       function block_set_1(x, y) {
-        if (start_new_from_blank(x, y)) return new_block();
+        if (start_new_from_blank(x, y)) return new_block(x, y);
         return { v: false, h: false, in: false, col: null, id: null };
       }
 
       function block_set_2(x, y) {
-        if (start_new_from_blank(x, y)) return new_block();
+        if (start_new_from_blank(x, y)) return new_block(x, y);
         return { v: true, h: false, in: false, col: null, id: null };
       }
 
@@ -105,7 +296,7 @@
       }
 
       function block_set_4(x, y) {
-        if (start_new_from_blank(x, y)) return new_block();
+        if (start_new_from_blank(x, y)) return new_block(x, y);
         return { v: false, h: true, in: false, col: null, id: null };
       }
 
@@ -120,33 +311,35 @@
 
       function block_set_7(x, y) {
         if (extend(x, y)) return { v: false, h: true, in: true, col: left.col, id: left.id };
-        if (start_new(x, y)) return new_block();
+        if (start_new(x, y)) return new_block(x, y);
         return { v: true, h: true, in: false, col: null, id: null };
       }
 
       function block_set_8(x, y) {
         if (extend(x, y)) return { v: true, h: false, in: true, col: top.col, id: top.id };
-        if (start_new(x, y)) return new_block();
+        if (start_new(x, y)) return new_block(x, y);
         return { v: true, h: true, in: false, col: null, id: null };
       }
 
       function block_set_9(x, y) {
-        if (vertical_dir()) return { v: true, h: false, in: true, col: top.col, id: top.id };
+        if (vertical_dir(x, y)) return { v: true, h: false, in: true, col: top.col, id: top.id };
         return { v: false, h: true, in: true, col: left.col, id: left.id };
       }
 
       // ---- Blocks ----
 
-      function new_block() {
+      function new_block(nx, ny) {
         let col;
         if (context.color_mode === 'random') {
-          col = get_random(context.colors);
+          col = context.get_random(context.colors, nx, ny);
         } else if (context.color_mode === 'main') {
-          col = Math.random() > 0.75 ? get_random(context.colors) : context.main_color;
+          col = context.noise(x, y, '_main') > 0.75 ? context.get_random(context.colors, x, y) : context.main_color;
         } else if (context.color_mode === 'group') {
-          let keep = Math.random() > 0.5 ? left.col : top.col;
+          let keep = context.noise(x, y, '_keep') > 0.5 ? left.col : top.col;
           context.main_color =
-            Math.random() > context.group_size ? get_random(context.colors) : keep || context.main_color;
+            context.noise(x, y, '_group') > context.group_size
+              ? context.get_random(context.colors, x, y)
+              : keep || context.main_color;
           col = context.main_color;
         } else {
           col = context.main_color;
@@ -160,35 +353,42 @@
       function start_new_from_blank(x, y) {
         if (context.simple) return true;
         if (!active_position(x, y, -1 * (1 - context.roundness))) return false;
-        return Math.random() <= context.solidness;
+        return context.noise(x, y, '_blank') <= context.solidness;
       }
 
       function start_new(x, y) {
         if (context.simple) return true;
         if (!active_position(x, y, 0)) return false;
-        return Math.random() <= context.chance_new;
+        return context.noise(x, y, '_new') <= context.chance_new;
       }
 
       function extend(x, y) {
         if (!active_position(x, y, 1 - context.roundness) && !context.simple) return false;
-        return Math.random() <= context.chance_extend;
+        return context.noise(x, y, '_extend') <= context.chance_extend;
       }
 
-      function vertical_dir() {
-        return Math.random() <= context.chance_vertical;
+      function vertical_dir(x, y) {
+        return context.noise(x, y, '_vert') <= context.chance_vertical;
       }
 
       function active_position(x, y, fuzzy) {
-        let fuzziness = 1 + Math.random() * fuzzy;
+        let fuzziness = 1 + context.noise(x, y, '_active') * fuzzy;
         let xa = Math.pow(x - context.xdim / 2, 2) / Math.pow(context.radius_x * fuzziness, 2);
         let ya = Math.pow(y - context.ydim / 2, 2) / Math.pow(context.radius_y * fuzziness, 2);
         return xa + ya < 1;
       }
     }
-  }
 
-  function get_random(array) {
-    return array[Math.floor(Math.random() * array.length)];
+    noise(nx, ny, nz = '') {
+      if (!this.simplex) return Math.random();
+      const rng = seedRandom('' + this.global_seed + nx + ny + nz);
+      const n = this.simplex.noise3D(this.idx * this.rate_of_change, this.idy * this.rate_of_change, rng() * 23.4567);
+      return (n + 1) / 2;
+    }
+
+    get_random(array, nx, ny) {
+      return array[Math.floor(this.noise(nx, ny, '_array') * array.length)];
+    }
   }
 
   function deep_copy(obj) {
@@ -254,6 +454,481 @@
       return i => spacing + i * (this.element_size + padding_between);
     }
   };
+
+  function createCommonjsModule$1(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var simplexNoise = createCommonjsModule$1(function (module, exports) {
+  /*
+   * A fast javascript implementation of simplex noise by Jonas Wagner
+
+  Based on a speed-improved simplex noise algorithm for 2D, 3D and 4D in Java.
+  Which is based on example code by Stefan Gustavson (stegu@itn.liu.se).
+  With Optimisations by Peter Eastman (peastman@drizzle.stanford.edu).
+  Better rank ordering method by Stefan Gustavson in 2012.
+
+
+   Copyright (c) 2018 Jonas Wagner
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+   */
+  (function() {
+
+    var F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
+    var G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
+    var F3 = 1.0 / 3.0;
+    var G3 = 1.0 / 6.0;
+    var F4 = (Math.sqrt(5.0) - 1.0) / 4.0;
+    var G4 = (5.0 - Math.sqrt(5.0)) / 20.0;
+
+    function SimplexNoise(randomOrSeed) {
+      var random;
+      if (typeof randomOrSeed == 'function') {
+        random = randomOrSeed;
+      }
+      else if (randomOrSeed) {
+        random = alea(randomOrSeed);
+      } else {
+        random = Math.random;
+      }
+      this.p = buildPermutationTable(random);
+      this.perm = new Uint8Array(512);
+      this.permMod12 = new Uint8Array(512);
+      for (var i = 0; i < 512; i++) {
+        this.perm[i] = this.p[i & 255];
+        this.permMod12[i] = this.perm[i] % 12;
+      }
+
+    }
+    SimplexNoise.prototype = {
+      grad3: new Float32Array([1, 1, 0,
+        -1, 1, 0,
+        1, -1, 0,
+
+        -1, -1, 0,
+        1, 0, 1,
+        -1, 0, 1,
+
+        1, 0, -1,
+        -1, 0, -1,
+        0, 1, 1,
+
+        0, -1, 1,
+        0, 1, -1,
+        0, -1, -1]),
+      grad4: new Float32Array([0, 1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1, -1,
+        0, -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1,
+        1, 0, 1, 1, 1, 0, 1, -1, 1, 0, -1, 1, 1, 0, -1, -1,
+        -1, 0, 1, 1, -1, 0, 1, -1, -1, 0, -1, 1, -1, 0, -1, -1,
+        1, 1, 0, 1, 1, 1, 0, -1, 1, -1, 0, 1, 1, -1, 0, -1,
+        -1, 1, 0, 1, -1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, -1,
+        1, 1, 1, 0, 1, 1, -1, 0, 1, -1, 1, 0, 1, -1, -1, 0,
+        -1, 1, 1, 0, -1, 1, -1, 0, -1, -1, 1, 0, -1, -1, -1, 0]),
+      noise2D: function(xin, yin) {
+        var permMod12 = this.permMod12;
+        var perm = this.perm;
+        var grad3 = this.grad3;
+        var n0 = 0; // Noise contributions from the three corners
+        var n1 = 0;
+        var n2 = 0;
+        // Skew the input space to determine which simplex cell we're in
+        var s = (xin + yin) * F2; // Hairy factor for 2D
+        var i = Math.floor(xin + s);
+        var j = Math.floor(yin + s);
+        var t = (i + j) * G2;
+        var X0 = i - t; // Unskew the cell origin back to (x,y) space
+        var Y0 = j - t;
+        var x0 = xin - X0; // The x,y distances from the cell origin
+        var y0 = yin - Y0;
+        // For the 2D case, the simplex shape is an equilateral triangle.
+        // Determine which simplex we are in.
+        var i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords
+        if (x0 > y0) {
+          i1 = 1;
+          j1 = 0;
+        } // lower triangle, XY order: (0,0)->(1,0)->(1,1)
+        else {
+          i1 = 0;
+          j1 = 1;
+        } // upper triangle, YX order: (0,0)->(0,1)->(1,1)
+        // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
+        // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
+        // c = (3-sqrt(3))/6
+        var x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords
+        var y1 = y0 - j1 + G2;
+        var x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords
+        var y2 = y0 - 1.0 + 2.0 * G2;
+        // Work out the hashed gradient indices of the three simplex corners
+        var ii = i & 255;
+        var jj = j & 255;
+        // Calculate the contribution from the three corners
+        var t0 = 0.5 - x0 * x0 - y0 * y0;
+        if (t0 >= 0) {
+          var gi0 = permMod12[ii + perm[jj]] * 3;
+          t0 *= t0;
+          n0 = t0 * t0 * (grad3[gi0] * x0 + grad3[gi0 + 1] * y0); // (x,y) of grad3 used for 2D gradient
+        }
+        var t1 = 0.5 - x1 * x1 - y1 * y1;
+        if (t1 >= 0) {
+          var gi1 = permMod12[ii + i1 + perm[jj + j1]] * 3;
+          t1 *= t1;
+          n1 = t1 * t1 * (grad3[gi1] * x1 + grad3[gi1 + 1] * y1);
+        }
+        var t2 = 0.5 - x2 * x2 - y2 * y2;
+        if (t2 >= 0) {
+          var gi2 = permMod12[ii + 1 + perm[jj + 1]] * 3;
+          t2 *= t2;
+          n2 = t2 * t2 * (grad3[gi2] * x2 + grad3[gi2 + 1] * y2);
+        }
+        // Add contributions from each corner to get the final noise value.
+        // The result is scaled to return values in the interval [-1,1].
+        return 70.0 * (n0 + n1 + n2);
+      },
+      // 3D simplex noise
+      noise3D: function(xin, yin, zin) {
+        var permMod12 = this.permMod12;
+        var perm = this.perm;
+        var grad3 = this.grad3;
+        var n0, n1, n2, n3; // Noise contributions from the four corners
+        // Skew the input space to determine which simplex cell we're in
+        var s = (xin + yin + zin) * F3; // Very nice and simple skew factor for 3D
+        var i = Math.floor(xin + s);
+        var j = Math.floor(yin + s);
+        var k = Math.floor(zin + s);
+        var t = (i + j + k) * G3;
+        var X0 = i - t; // Unskew the cell origin back to (x,y,z) space
+        var Y0 = j - t;
+        var Z0 = k - t;
+        var x0 = xin - X0; // The x,y,z distances from the cell origin
+        var y0 = yin - Y0;
+        var z0 = zin - Z0;
+        // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
+        // Determine which simplex we are in.
+        var i1, j1, k1; // Offsets for second corner of simplex in (i,j,k) coords
+        var i2, j2, k2; // Offsets for third corner of simplex in (i,j,k) coords
+        if (x0 >= y0) {
+          if (y0 >= z0) {
+            i1 = 1;
+            j1 = 0;
+            k1 = 0;
+            i2 = 1;
+            j2 = 1;
+            k2 = 0;
+          } // X Y Z order
+          else if (x0 >= z0) {
+            i1 = 1;
+            j1 = 0;
+            k1 = 0;
+            i2 = 1;
+            j2 = 0;
+            k2 = 1;
+          } // X Z Y order
+          else {
+            i1 = 0;
+            j1 = 0;
+            k1 = 1;
+            i2 = 1;
+            j2 = 0;
+            k2 = 1;
+          } // Z X Y order
+        }
+        else { // x0<y0
+          if (y0 < z0) {
+            i1 = 0;
+            j1 = 0;
+            k1 = 1;
+            i2 = 0;
+            j2 = 1;
+            k2 = 1;
+          } // Z Y X order
+          else if (x0 < z0) {
+            i1 = 0;
+            j1 = 1;
+            k1 = 0;
+            i2 = 0;
+            j2 = 1;
+            k2 = 1;
+          } // Y Z X order
+          else {
+            i1 = 0;
+            j1 = 1;
+            k1 = 0;
+            i2 = 1;
+            j2 = 1;
+            k2 = 0;
+          } // Y X Z order
+        }
+        // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
+        // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
+        // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
+        // c = 1/6.
+        var x1 = x0 - i1 + G3; // Offsets for second corner in (x,y,z) coords
+        var y1 = y0 - j1 + G3;
+        var z1 = z0 - k1 + G3;
+        var x2 = x0 - i2 + 2.0 * G3; // Offsets for third corner in (x,y,z) coords
+        var y2 = y0 - j2 + 2.0 * G3;
+        var z2 = z0 - k2 + 2.0 * G3;
+        var x3 = x0 - 1.0 + 3.0 * G3; // Offsets for last corner in (x,y,z) coords
+        var y3 = y0 - 1.0 + 3.0 * G3;
+        var z3 = z0 - 1.0 + 3.0 * G3;
+        // Work out the hashed gradient indices of the four simplex corners
+        var ii = i & 255;
+        var jj = j & 255;
+        var kk = k & 255;
+        // Calculate the contribution from the four corners
+        var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+        if (t0 < 0) n0 = 0.0;
+        else {
+          var gi0 = permMod12[ii + perm[jj + perm[kk]]] * 3;
+          t0 *= t0;
+          n0 = t0 * t0 * (grad3[gi0] * x0 + grad3[gi0 + 1] * y0 + grad3[gi0 + 2] * z0);
+        }
+        var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+        if (t1 < 0) n1 = 0.0;
+        else {
+          var gi1 = permMod12[ii + i1 + perm[jj + j1 + perm[kk + k1]]] * 3;
+          t1 *= t1;
+          n1 = t1 * t1 * (grad3[gi1] * x1 + grad3[gi1 + 1] * y1 + grad3[gi1 + 2] * z1);
+        }
+        var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+        if (t2 < 0) n2 = 0.0;
+        else {
+          var gi2 = permMod12[ii + i2 + perm[jj + j2 + perm[kk + k2]]] * 3;
+          t2 *= t2;
+          n2 = t2 * t2 * (grad3[gi2] * x2 + grad3[gi2 + 1] * y2 + grad3[gi2 + 2] * z2);
+        }
+        var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+        if (t3 < 0) n3 = 0.0;
+        else {
+          var gi3 = permMod12[ii + 1 + perm[jj + 1 + perm[kk + 1]]] * 3;
+          t3 *= t3;
+          n3 = t3 * t3 * (grad3[gi3] * x3 + grad3[gi3 + 1] * y3 + grad3[gi3 + 2] * z3);
+        }
+        // Add contributions from each corner to get the final noise value.
+        // The result is scaled to stay just inside [-1,1]
+        return 32.0 * (n0 + n1 + n2 + n3);
+      },
+      // 4D simplex noise, better simplex rank ordering method 2012-03-09
+      noise4D: function(x, y, z, w) {
+        var perm = this.perm;
+        var grad4 = this.grad4;
+
+        var n0, n1, n2, n3, n4; // Noise contributions from the five corners
+        // Skew the (x,y,z,w) space to determine which cell of 24 simplices we're in
+        var s = (x + y + z + w) * F4; // Factor for 4D skewing
+        var i = Math.floor(x + s);
+        var j = Math.floor(y + s);
+        var k = Math.floor(z + s);
+        var l = Math.floor(w + s);
+        var t = (i + j + k + l) * G4; // Factor for 4D unskewing
+        var X0 = i - t; // Unskew the cell origin back to (x,y,z,w) space
+        var Y0 = j - t;
+        var Z0 = k - t;
+        var W0 = l - t;
+        var x0 = x - X0; // The x,y,z,w distances from the cell origin
+        var y0 = y - Y0;
+        var z0 = z - Z0;
+        var w0 = w - W0;
+        // For the 4D case, the simplex is a 4D shape I won't even try to describe.
+        // To find out which of the 24 possible simplices we're in, we need to
+        // determine the magnitude ordering of x0, y0, z0 and w0.
+        // Six pair-wise comparisons are performed between each possible pair
+        // of the four coordinates, and the results are used to rank the numbers.
+        var rankx = 0;
+        var ranky = 0;
+        var rankz = 0;
+        var rankw = 0;
+        if (x0 > y0) rankx++;
+        else ranky++;
+        if (x0 > z0) rankx++;
+        else rankz++;
+        if (x0 > w0) rankx++;
+        else rankw++;
+        if (y0 > z0) ranky++;
+        else rankz++;
+        if (y0 > w0) ranky++;
+        else rankw++;
+        if (z0 > w0) rankz++;
+        else rankw++;
+        var i1, j1, k1, l1; // The integer offsets for the second simplex corner
+        var i2, j2, k2, l2; // The integer offsets for the third simplex corner
+        var i3, j3, k3, l3; // The integer offsets for the fourth simplex corner
+        // simplex[c] is a 4-vector with the numbers 0, 1, 2 and 3 in some order.
+        // Many values of c will never occur, since e.g. x>y>z>w makes x<z, y<w and x<w
+        // impossible. Only the 24 indices which have non-zero entries make any sense.
+        // We use a thresholding to set the coordinates in turn from the largest magnitude.
+        // Rank 3 denotes the largest coordinate.
+        i1 = rankx >= 3 ? 1 : 0;
+        j1 = ranky >= 3 ? 1 : 0;
+        k1 = rankz >= 3 ? 1 : 0;
+        l1 = rankw >= 3 ? 1 : 0;
+        // Rank 2 denotes the second largest coordinate.
+        i2 = rankx >= 2 ? 1 : 0;
+        j2 = ranky >= 2 ? 1 : 0;
+        k2 = rankz >= 2 ? 1 : 0;
+        l2 = rankw >= 2 ? 1 : 0;
+        // Rank 1 denotes the second smallest coordinate.
+        i3 = rankx >= 1 ? 1 : 0;
+        j3 = ranky >= 1 ? 1 : 0;
+        k3 = rankz >= 1 ? 1 : 0;
+        l3 = rankw >= 1 ? 1 : 0;
+        // The fifth corner has all coordinate offsets = 1, so no need to compute that.
+        var x1 = x0 - i1 + G4; // Offsets for second corner in (x,y,z,w) coords
+        var y1 = y0 - j1 + G4;
+        var z1 = z0 - k1 + G4;
+        var w1 = w0 - l1 + G4;
+        var x2 = x0 - i2 + 2.0 * G4; // Offsets for third corner in (x,y,z,w) coords
+        var y2 = y0 - j2 + 2.0 * G4;
+        var z2 = z0 - k2 + 2.0 * G4;
+        var w2 = w0 - l2 + 2.0 * G4;
+        var x3 = x0 - i3 + 3.0 * G4; // Offsets for fourth corner in (x,y,z,w) coords
+        var y3 = y0 - j3 + 3.0 * G4;
+        var z3 = z0 - k3 + 3.0 * G4;
+        var w3 = w0 - l3 + 3.0 * G4;
+        var x4 = x0 - 1.0 + 4.0 * G4; // Offsets for last corner in (x,y,z,w) coords
+        var y4 = y0 - 1.0 + 4.0 * G4;
+        var z4 = z0 - 1.0 + 4.0 * G4;
+        var w4 = w0 - 1.0 + 4.0 * G4;
+        // Work out the hashed gradient indices of the five simplex corners
+        var ii = i & 255;
+        var jj = j & 255;
+        var kk = k & 255;
+        var ll = l & 255;
+        // Calculate the contribution from the five corners
+        var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
+        if (t0 < 0) n0 = 0.0;
+        else {
+          var gi0 = (perm[ii + perm[jj + perm[kk + perm[ll]]]] % 32) * 4;
+          t0 *= t0;
+          n0 = t0 * t0 * (grad4[gi0] * x0 + grad4[gi0 + 1] * y0 + grad4[gi0 + 2] * z0 + grad4[gi0 + 3] * w0);
+        }
+        var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
+        if (t1 < 0) n1 = 0.0;
+        else {
+          var gi1 = (perm[ii + i1 + perm[jj + j1 + perm[kk + k1 + perm[ll + l1]]]] % 32) * 4;
+          t1 *= t1;
+          n1 = t1 * t1 * (grad4[gi1] * x1 + grad4[gi1 + 1] * y1 + grad4[gi1 + 2] * z1 + grad4[gi1 + 3] * w1);
+        }
+        var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
+        if (t2 < 0) n2 = 0.0;
+        else {
+          var gi2 = (perm[ii + i2 + perm[jj + j2 + perm[kk + k2 + perm[ll + l2]]]] % 32) * 4;
+          t2 *= t2;
+          n2 = t2 * t2 * (grad4[gi2] * x2 + grad4[gi2 + 1] * y2 + grad4[gi2 + 2] * z2 + grad4[gi2 + 3] * w2);
+        }
+        var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
+        if (t3 < 0) n3 = 0.0;
+        else {
+          var gi3 = (perm[ii + i3 + perm[jj + j3 + perm[kk + k3 + perm[ll + l3]]]] % 32) * 4;
+          t3 *= t3;
+          n3 = t3 * t3 * (grad4[gi3] * x3 + grad4[gi3 + 1] * y3 + grad4[gi3 + 2] * z3 + grad4[gi3 + 3] * w3);
+        }
+        var t4 = 0.6 - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
+        if (t4 < 0) n4 = 0.0;
+        else {
+          var gi4 = (perm[ii + 1 + perm[jj + 1 + perm[kk + 1 + perm[ll + 1]]]] % 32) * 4;
+          t4 *= t4;
+          n4 = t4 * t4 * (grad4[gi4] * x4 + grad4[gi4 + 1] * y4 + grad4[gi4 + 2] * z4 + grad4[gi4 + 3] * w4);
+        }
+        // Sum up and scale the result to cover the range [-1,1]
+        return 27.0 * (n0 + n1 + n2 + n3 + n4);
+      }
+    };
+
+    function buildPermutationTable(random) {
+      var i;
+      var p = new Uint8Array(256);
+      for (i = 0; i < 256; i++) {
+        p[i] = i;
+      }
+      for (i = 0; i < 255; i++) {
+        var r = i + ~~(random() * (256 - i));
+        var aux = p[i];
+        p[i] = p[r];
+        p[r] = aux;
+      }
+      return p;
+    }
+    SimplexNoise._buildPermutationTable = buildPermutationTable;
+
+    function alea() {
+      // Johannes Baagøe <baagoe@baagoe.com>, 2010
+      var s0 = 0;
+      var s1 = 0;
+      var s2 = 0;
+      var c = 1;
+
+      var mash = masher();
+      s0 = mash(' ');
+      s1 = mash(' ');
+      s2 = mash(' ');
+
+      for (var i = 0; i < arguments.length; i++) {
+        s0 -= mash(arguments[i]);
+        if (s0 < 0) {
+          s0 += 1;
+        }
+        s1 -= mash(arguments[i]);
+        if (s1 < 0) {
+          s1 += 1;
+        }
+        s2 -= mash(arguments[i]);
+        if (s2 < 0) {
+          s2 += 1;
+        }
+      }
+      mash = null;
+      return function() {
+        var t = 2091639 * s0 + c * 2.3283064365386963e-10; // 2^-32
+        s0 = s1;
+        s1 = s2;
+        return s2 = t - (c = t | 0);
+      };
+    }
+    function masher() {
+      var n = 0xefc8249d;
+      return function(data) {
+        data = data.toString();
+        for (var i = 0; i < data.length; i++) {
+          n += data.charCodeAt(i);
+          var h = 0.02519603282416938 * n;
+          n = h >>> 0;
+          h -= n;
+          h *= n;
+          n = h >>> 0;
+          h -= n;
+          n += h * 0x100000000; // 2^32
+        }
+        return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
+      };
+    }
+    // common js
+    exports.SimplexNoise = SimplexNoise;
+    // nodejs
+    {
+      module.exports = SimplexNoise;
+    }
+
+  })();
+  });
+  var simplexNoise_1 = simplexNoise.SimplexNoise;
 
   /**
    * dat-gui JavaScript Controller Library
@@ -2748,6 +3423,7 @@
     });
   }
   var GUI$1 = GUI;
+  //# sourceMappingURL=dat.gui.module.js.map
 
   var misc = [
     {
@@ -2822,15 +3498,7 @@
     },
     {
       name: 'empusa',
-      colors: [
-        '#c92a28',
-        '#e69301',
-        '#1f8793',
-        '#13652b',
-        '#e7d8b0',
-        '#48233b',
-        '#e3b3ac'
-      ],
+      colors: ['#c92a28', '#e69301', '#1f8793', '#13652b', '#e7d8b0', '#48233b', '#e3b3ac'],
       stroke: '#1a1a1a',
       background: '#f0f0f2'
     },
@@ -2851,6 +3519,54 @@
       colors: ['#f05e3b', '#ebdec4', '#ffdb00'],
       stroke: '#ebdec4',
       background: '#161616'
+    },
+    {
+      name: 'moir',
+      colors: ['#a49f4f', '#d4501e', '#f7c558', '#ebbaa6'],
+      stroke: '#161716',
+      background: '#f7f4ef'
+    },
+    {
+      name: 'sprague',
+      colors: ['#ec2f28', '#f8cd28', '#1e95bb', '#fbaab3', '#fcefdf'],
+      stroke: '#221e1f',
+      background: '#fcefdf'
+    },
+    {
+      name: 'bloomberg',
+      colors: ['#ff5500', '#f4c145', '#144714', '#2f04fc', '#e276af'],
+      stroke: '#000',
+      background: '#fff3dd'
+    },
+    {
+      name: 'revolucion',
+      colors: ['#ed555d', '#fffcc9', '#41b797', '#eda126', '#7b5770'],
+      stroke: '#fffcc9',
+      background: '#2d1922'
+    },
+    {
+      name: 'sneaker',
+      colors: ['#e8165b', '#401e38', '#66c3b4', '#ee7724', '#584098'],
+      stroke: '#401e38',
+      background: '#ffffff'
+    },
+    {
+      name: 'miradors',
+      colors: ['#ff6936', '#fddc3f', '#0075ca', '#00bb70'],
+      stroke: '#ffffff',
+      background: '#020202'
+    },
+    {
+      name: 'kaffeprat',
+      colors: ['#BCAA8C', '#D8CDBE', '#484A42', '#746B58', '#9A8C73'],
+      stroke: '#000',
+      background: '#fff'
+    },
+    {
+      name: 'delphi',
+      colors: ['#475b62', '#7a999c', '#2a1f1d', '#fbaf3c', '#df4a33', '#f0e0c6', '#af592c'],
+      stroke: '#2a1f1d',
+      background: '#f0e0c6'
     }
   ];
 
@@ -3252,6 +3968,61 @@
       colors: ['#de3f1a', '#de9232', '#007158', '#e6cdaf', '#869679'],
       stroke: '#010006',
       background: '#7aa5a6'
+    },
+    {
+      name: 'kov_06',
+      colors: [
+        '#a87c2a',
+        '#bdc9b1',
+        '#f14616',
+        '#ecbfaf',
+        '#017724',
+        '#0e2733',
+        '#2b9ae9'
+      ],
+      stroke: '#292319',
+      background: '#dfd4c1'
+    },
+    {
+      name: 'kov_06b',
+      colors: [
+        '#d57846',
+        '#dfe0cc',
+        '#de442f',
+        '#e7d3c5',
+        '#5ec227',
+        '#302f35',
+        '#63bdb3'
+      ],
+      stroke: '#292319',
+      background: '#dfd4c1'
+    },
+    {
+      name: 'kov_07',
+      colors: ['#c91619', '#fdecd2', '#f4a000', '#4c2653'],
+      stroke: '#111',
+      background: '#89c2cd'
+    }
+  ];
+
+  var tsuchimochi = [
+    {
+      name: 'tsu_arcade',
+      colors: ['#4aad8b', '#e15147', '#f3b551', '#cec8b8', '#d1af84', '#544e47'],
+      stroke: '#251c12',
+      background: '#cfc7b9'
+    },
+    {
+      name: 'tsu_harutan',
+      colors: ['#75974a', '#c83e3c', '#f39140', '#e4ded2', '#f8c5a4', '#434f55'],
+      stroke: '#251c12',
+      background: '#cfc7b9'
+    },
+    {
+      name: 'tsu_akasaka',
+      colors: ['#687f72', '#cc7d6c', '#dec36f', '#dec7af', '#ad8470', '#424637'],
+      stroke: '#251c12',
+      background: '#cfc7b9'
     }
   ];
 
@@ -3275,10 +4046,197 @@
       background: '#0a5e78'
     },
     {
-      name: 'iiso_daily',
+      name: 'dt04',
       colors: ['#50978e', '#f7f0df'],
       stroke: '#000000',
       background: '#f7f0df'
+    },
+    {
+      name: 'dt05',
+      colors: ['#ee5d65', '#f0e5cb'],
+      stroke: '#080708',
+      background: '#f0e5cb'
+    },
+    {
+      name: 'dt06',
+      colors: ['#271f47', '#e7ceb5'],
+      stroke: '#271f47',
+      background: '#cc2b1c'
+    },
+    {
+      name: 'dt07',
+      colors: ['#6a98a5', '#d24c18'],
+      stroke: '#efebda',
+      background: '#efebda'
+    },
+    {
+      name: 'dt08',
+      colors: ['#5d9d88', '#ebb43b'],
+      stroke: '#efebda',
+      background: '#efebda'
+    },
+    {
+      name: 'dt09',
+      colors: ['#052e57', '#de8d80'],
+      stroke: '#efebda',
+      background: '#efebda'
+    }
+  ];
+
+  var hilda = [
+    {
+      name: 'hilda01',
+      colors: ['#ec5526', '#f4ac12', '#9ebbc1', '#f7f4e2'],
+      stroke: '#1e1b1e',
+      background: '#e7e8d4'
+    },
+    {
+      name: 'hilda02',
+      colors: ['#eb5627', '#eebb20', '#4e9eb8', '#f7f5d0'],
+      stroke: '#201d13',
+      background: '#77c1c0'
+    },
+    {
+      name: 'hilda03',
+      colors: ['#e95145', '#f8b917', '#b8bdc1', '#ffb2a2'],
+      stroke: '#010101',
+      background: '#6b7752'
+    },
+    {
+      name: 'hilda04',
+      colors: ['#e95145', '#f6bf7a', '#589da1', '#f5d9bc'],
+      stroke: '#000001',
+      background: '#f5ede1'
+    },
+    {
+      name: 'hilda05',
+      colors: ['#ff6555', '#ffb58f', '#d8eecf', '#8c4b47', '#bf7f93'],
+      stroke: '#2b0404',
+      background: '#ffda82'
+    },
+    {
+      name: 'hilda06',
+      colors: ['#f75952', '#ffce84', '#74b7b2', '#f6f6f6', '#b17d71'],
+      stroke: '#0e0603',
+      background: '#f6ecd4'
+    }
+  ];
+
+  var spatial = [
+    {
+      name: 'spatial01',
+      colors: ['#ff5937', '#f6f6f4', '#4169ff'],
+      stroke: '#ff5937',
+      background: '#f6f6f4'
+    },
+    {
+      name: 'spatial02',
+      colors: ['#ff5937', '#f6f6f4', '#f6f6f4'],
+      stroke: '#ff5937',
+      background: '#f6f6f4'
+    },
+    {
+      name: 'spatial02i',
+      colors: ['#f6f6f4', '#ff5937', '#ff5937'],
+      stroke: '#f6f6f4',
+      background: '#ff5937'
+    },
+
+    {
+      name: 'spatial03',
+      colors: ['#4169ff', '#f6f6f4', '#f6f6f4'],
+      stroke: '#4169ff',
+      background: '#f6f6f4'
+    },
+    {
+      name: 'spatial03i',
+      colors: ['#f6f6f4', '#4169ff', '#4169ff'],
+      stroke: '#f6f6f4',
+      background: '#4169ff'
+    }
+  ];
+
+  var jung = [
+    {
+      name: 'jung_bird',
+      colors: ['#fc3032', '#fed530', '#33c3fb', '#ff7bac', '#fda929'],
+      stroke: '#000000',
+      background: '#ffffff'
+    },
+    {
+      name: 'jung_horse',
+      colors: ['#e72e81', '#f0bf36', '#3056a2'],
+      stroke: '#000000',
+      background: '#ffffff'
+    },
+    {
+      name: 'jung_croc',
+      colors: ['#f13274', '#eed03e', '#405e7f', '#19a198'],
+      stroke: '#000000',
+      background: '#ffffff'
+    },
+    {
+      name: 'jung_hippo',
+      colors: ['#ff7bac', '#ff921e', '#3ea8f5', '#7ac943'],
+      stroke: '#000000',
+      background: '#ffffff'
+    },
+    {
+      name: 'jung_wolf',
+      colors: ['#e51c39', '#f1b844', '#36c4b7', '#666666'],
+      stroke: '#000000',
+      background: '#ffffff'
+    }
+  ];
+
+  var system = [
+    {
+      name: 'system.#01',
+      colors: ['#ff4242', '#fec101', '#1841fe', '#fcbdcc', '#82e9b5'],
+      stroke: '#000',
+      background: '#fff'
+    },
+    {
+      name: 'system.#02',
+      colors: ['#ff4242', '#ffd480', '#1e365d', '#edb14c', '#418dcd'],
+      stroke: '#000',
+      background: '#fff'
+    },
+    {
+      name: 'system.#03',
+      colors: ['#f73f4a', '#d3e5eb', '#002c3e', '#1aa1b1', '#ec6675'],
+      stroke: '#110b09',
+      background: '#fff'
+    },
+    {
+      name: 'system.#04',
+      colors: ['#e31f4f', '#f0ac3f', '#18acab', '#26265a', '#ea7d81', '#dcd9d0'],
+      stroke: '#26265a',
+      backgrund: '#dcd9d0'
+    },
+    {
+      name: 'system.#05',
+      colors: ['#db4549', '#d1e1e1', '#3e6a90', '#2e3853', '#a3c9d3'],
+      stroke: '#000',
+      background: '#fff'
+    },
+    {
+      name: 'system.#06',
+      colors: ['#e5475c', '#95b394', '#28343b', '#f7c6a3', '#eb8078'],
+      stroke: '#000',
+      background: '#fff'
+    },
+    {
+      name: 'system.#07',
+      colors: ['#d75c49', '#f0efea', '#509da4'],
+      stroke: '#000',
+      background: '#fff'
+    },
+    {
+      name: 'system.#08',
+      colors: ['#f6625a', '#92b29f', '#272c3f'],
+      stroke: '#000',
+      background: '#fff'
     }
   ];
 
@@ -3292,7 +4250,12 @@
     judson,
     iivonen,
     kovecses,
-    duotone
+    tsuchimochi,
+    duotone,
+    hilda,
+    spatial,
+    jung,
+    system
   );
 
   var palettes = pals.map(p => {
@@ -3379,11 +4342,11 @@
     remembered: {
       Default: {
         '0': {
-          rows: 5,
-          columns: 8,
+          rows: 7,
+          columns: 10,
           padding: 30,
-          cell_size: 22,
-          cell_pad: -2,
+          cell_size: 16,
+          cell_pad: 5,
           radius_x: 8,
           radius_y: 10,
           simple: false,
@@ -3396,7 +4359,7 @@
           v_symmetric: false,
           display_stroke: false,
           display_fill: true,
-          palette: 'knotberry2',
+          palette: 'revolucion',
           color_mode: 'group',
           group_size: 0.7
         }
@@ -3421,6 +4384,109 @@
           display_stroke: false,
           display_fill: true,
           palette: 'ducci_j',
+          color_mode: 'group',
+          group_size: 0.7
+        }
+      },
+      evolve: {
+        0: {
+          rows: 4,
+          columns: 7,
+          padding: 0,
+          cell_size: 22,
+          cell_pad: -4,
+          radius_x: 8,
+          radius_y: 8,
+          simple: false,
+          roundness: 0.1,
+          solidness: 1,
+          compactness: 1,
+          block_size: 0.58,
+          chance_vertical: 0.4,
+          h_symmetric: true,
+          v_symmetric: false,
+          display_stroke: true,
+          display_fill: true,
+          random_palette: false,
+          palette: 'kov_01',
+          color_mode: 'random',
+          group_size: 0.7
+        }
+      },
+      evolve_2: {
+        0: {
+          rows: 3,
+          columns: 6,
+          padding: 30,
+          cell_size: 9,
+          cell_pad: 6,
+          radius_x: 10,
+          radius_y: 13,
+          simple: false,
+          roundness: 0.1,
+          solidness: 1,
+          compactness: 1,
+          block_size: 0.68,
+          chance_vertical: 0.4,
+          h_symmetric: true,
+          v_symmetric: false,
+          display_stroke: false,
+          display_fill: true,
+          random_palette: false,
+          palette: 'kov_03',
+          color_mode: 'random',
+          group_size: 0.7000000000000001
+        }
+      },
+      arcade: {
+        0: {
+          rows: 13,
+          columns: 8,
+          padding: 45,
+          cell_size: 18,
+          cell_pad: 5,
+          radius_x: 8,
+          radius_y: 10,
+          simple: false,
+          roundness: 0.1,
+          solidness: 0.5,
+          compactness: 1,
+          block_size: 0.8,
+          chance_vertical: 0.5,
+          h_symmetric: true,
+          v_symmetric: false,
+          display_stroke: false,
+          display_fill: true,
+          random_palette: false,
+          palette: 'revolucion',
+          color_mode: 'group',
+          group_size: 0.7
+        }
+      },
+
+      artifact: {
+        0: {
+          rows: 5,
+          columns: 10,
+          padding: 60,
+          cell_size: 14,
+          cell_pad: -8,
+          radius_x: 10,
+          radius_y: 10,
+          simple: false,
+          roundness: 0.1,
+          solidness: 0.5,
+          compactness: 1,
+          block_size: 0.5,
+          chance_vertical: 0.4,
+          h_symmetric: true,
+          v_symmetric: true,
+          use_simplex: true,
+          rate_of_change: 0.015,
+          display_stroke: true,
+          display_fill: true,
+          random_palette: false,
+          palette: 'iiso_daily',
           color_mode: 'group',
           group_size: 0.7
         }
@@ -3453,10 +4519,12 @@
 
   window.onload = function() {
     var canvas = document.createElement('canvas');
-    canvas.width = '3200';
-    canvas.height = '1800';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
+
+    canvas.width = '6000';
+    canvas.height = '5000';
+
+    canvas.style.width = '1200px';
+    canvas.style.height = '1000px';
 
     var container = document.getElementById('sketch');
     container.appendChild(canvas);
@@ -3466,7 +4534,7 @@
       ctx.strokeStyle = '#1c2021';
 
       let options = {
-        cell_size: 30,
+        cell_size: 10,
         cell_pad: 10,
         radius_x: 14,
         radius_y: 14,
@@ -3487,14 +4555,16 @@
         palette: getRandom().name,
         color_mode: 'group',
         group_size: 0.85,
+        use_simplex: false,
+        rate_of_change: 0.05,
         save_image: save_image
       };
 
       let gui$$1 = new GUI$1({ load: presets });
       gui$$1.remember(options);
       let f1 = gui$$1.addFolder('Layout');
-      f1.add(options, 'rows', 1, 12, 1).onFinishChange(run);
-      f1.add(options, 'columns', 1, 12, 1).onFinishChange(run);
+      f1.add(options, 'rows', 1, 20, 1).onFinishChange(run);
+      f1.add(options, 'columns', 1, 20, 1).onFinishChange(run);
       f1.add(options, 'padding', 0, 300, 15).onFinishChange(run);
 
       let f2 = gui$$1.addFolder('Apparatus Shape');
@@ -3510,18 +4580,15 @@
       f2.add(options, 'chance_vertical', 0, 1, 0.1).onFinishChange(run);
       f2.add(options, 'h_symmetric').onFinishChange(run);
       f2.add(options, 'v_symmetric').onFinishChange(run);
+      f2.add(options, 'use_simplex').onFinishChange(run);
+      f2.add(options, 'rate_of_change', 0, 0.1, 0.005).onFinishChange(run);
 
       let f3 = gui$$1.addFolder('Apparatus Looks');
       f3.add(options, 'display_stroke').onFinishChange(run);
       f3.add(options, 'display_fill').onFinishChange(run);
       f3.add(options, 'random_palette').onFinishChange(run);
       f3.add(options, 'palette', getNames()).onFinishChange(run);
-      f3.add(options, 'color_mode', [
-        'single',
-        'main',
-        'group',
-        'random'
-      ]).onChange(run);
+      f3.add(options, 'color_mode', ['single', 'main', 'group', 'random']).onChange(run);
       f3.add(options, 'group_size', 0.5, 1, 0.02).onFinishChange(run);
 
       let f4 = gui$$1.addFolder('Controller');
@@ -3544,7 +4611,8 @@
     }
 
     function setup_apparatus(options) {
-      let colors = get$1(options.palette).colors;
+      const colors = get$1(options.palette).colors;
+      const simplex = options.use_simplex ? new simplexNoise('hello') : null;
 
       let opts = {
         initiate_chance: options.compactness,
@@ -3557,7 +4625,9 @@
         solidness: options.solidness,
         colors: colors,
         color_mode: options.color_mode,
-        group_size: options.group_size
+        group_size: options.group_size,
+        simplex: simplex,
+        rate_of_change: options.rate_of_change
       };
 
       return new index(options.radius_x, options.radius_y, opts);
@@ -3587,16 +4657,16 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = get$1(options.palette).background;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       for (let i = 0; i < ny; i++) {
-        for (let j = 0; j < nx - (i % 2); j++) {
+        for (let j = 0; j < nx - ((i + 1) % 2); j++) {
           ctx.save();
           ctx.translate(place_x(j), place_y(i));
           const offset =
-            (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) /
-            2;
-          ctx.translate(i % 2 == 0 ? 0 : offset, 0);
+            (apparatus.xdim * (options.cell_size + options.cell_pad) + padding) / 2;
+          ctx.translate(i % 2 !== 0 ? 0 : offset, 0);
           if (options.random_palette) apparatus.colors = getRandom().colors;
-          let grid = apparatus.generate();
+          let grid = apparatus.generate(null, null, false, i * nx + j, 0);
           ctx.lineCap = 'square';
           ctx.lineWidth = '2';
           display_apparatus2(ctx, grid, options);
@@ -3634,10 +4704,10 @@
       if (display_stroke) {
         roughRects.forEach(rect => {
           const points = getRectPoints(
-            rect.x1 * (cell_size + cell_pad) + 4,
-            rect.y1 * (cell_size + cell_pad) + 4,
-            rect.w * (cell_size + cell_pad) - cell_pad - 8,
-            rect.h * (cell_size + cell_pad) - cell_pad - 8
+            rect.x1 * (cell_size + cell_pad) + 2,
+            rect.y1 * (cell_size + cell_pad) + 2,
+            rect.w * (cell_size + cell_pad) - cell_pad - 4,
+            rect.h * (cell_size + cell_pad) - cell_pad - 4
           );
           const hatchPoints = getHatchPoints(
             rect.x1 * (cell_size + cell_pad),
