@@ -7,16 +7,16 @@ export default [
     input: pkg.main,
     output: {
       file: pkg.browser,
-      format: 'umd'
+      format: 'umd',
     },
-    plugins: [resolve(), commonjs()]
+    plugins: [resolve(), commonjs()],
   },
   {
     input: pkg.main_rough,
     output: {
       file: pkg.browser_rough,
-      format: 'umd'
+      format: 'umd',
     },
-    plugins: [resolve(), commonjs()]
-  }
+    plugins: [resolve(), commonjs()],
+  },
 ];

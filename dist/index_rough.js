@@ -1112,7 +1112,7 @@
       return obj === false || obj === true;
     },
     isFunction: function isFunction(obj) {
-      return Object.prototype.toString.call(obj) === '[object Function]';
+      return obj instanceof Function;
     }
   };
 
@@ -1610,8 +1610,9 @@
   });
   Object.defineProperty(Color.prototype, 'hex', {
     get: function get$$1() {
-      if (!this.__state.space !== 'HEX') {
+      if (this.__state.space !== 'HEX') {
         this.__state.hex = ColorMath.rgb_to_hex(this.r, this.g, this.b);
+        this.__state.space = 'HEX';
       }
       return this.__state.hex;
     },
@@ -3429,145 +3430,193 @@
     {
       name: 'frozen-rose',
       colors: ['#29368f', '#e9697b', '#1b164d', '#f7d996'],
-      background: '#f2e8e4'
+      background: '#f2e8e4',
     },
     {
       name: 'winter-night',
       colors: ['#122438', '#dd672e', '#87c7ca', '#ebebeb'],
-      background: '#ebebeb'
+      background: '#ebebeb',
     },
     {
       name: 'saami',
       colors: ['#eab700', '#e64818', '#2c6393', '#eecfca'],
-      background: '#e7e6e4'
+      background: '#e7e6e4',
     },
     {
       name: 'knotberry1',
       colors: ['#20342a', '#f74713', '#686d2c', '#e9b4a6'],
-      background: '#e5ded8'
+      background: '#e5ded8',
     },
     {
       name: 'knotberry2',
       colors: ['#1d3b1a', '#eb4b11', '#e5bc00', '#f29881'],
-      background: '#eae2d0'
+      background: '#eae2d0',
     },
     {
       name: 'tricolor',
       colors: ['#ec643b', '#56b7ab', '#f8cb57', '#1f1e43'],
-      background: '#f7f2df'
+      background: '#f7f2df',
     },
     {
       name: 'foxshelter',
       colors: ['#ff3931', '#007861', '#311f27', '#bab9a4'],
-      background: '#dddddd'
+      background: '#dddddd',
     },
     {
       name: 'hermes',
       colors: ['#253852', '#51222f', '#b53435', '#ecbb51'],
-      background: '#eeccc2'
+      background: '#eeccc2',
     },
     {
       name: 'olympia',
       colors: ['#ff3250', '#ffb33a', '#008c36', '#0085c6', '#4c4c4c'],
       stroke: '#0b0b0b',
-      background: '#faf2e5'
+      background: '#faf2e5',
     },
     {
       name: 'byrnes',
       colors: ['#c54514', '#dca215', '#23507f'],
       stroke: '#0b0b0b',
-      background: '#e8e7d4'
+      background: '#e8e7d4',
     },
     {
       name: 'butterfly',
       colors: ['#f40104', '#f6c0b3', '#99673a', '#f0f1f4'],
       stroke: '#191e36',
-      background: '#191e36'
+      background: '#191e36',
     },
     {
       name: 'floratopia',
       colors: ['#bf4a2b', '#cd902a', '#4e4973', '#f5d4bc'],
       stroke: '#1e1a43',
-      background: '#1e1a43'
+      background: '#1e1a43',
     },
     {
       name: 'verena',
       colors: ['#f1594a', '#f5b50e', '#14a160', '#2969de', '#885fa4'],
       stroke: '#1a1a1a',
-      background: '#e2e6e8'
-    },
-    {
-      name: 'empusa',
-      colors: ['#c92a28', '#e69301', '#1f8793', '#13652b', '#e7d8b0', '#48233b', '#e3b3ac'],
-      stroke: '#1a1a1a',
-      background: '#f0f0f2'
+      background: '#e2e6e8',
     },
     {
       name: 'florida_citrus',
       colors: ['#ea7251', '#ebf7f0', '#02aca5'],
       stroke: '#050100',
-      background: '#9ae2d3'
+      background: '#9ae2d3',
     },
     {
       name: 'lemon_citrus',
       colors: ['#e2d574', '#f1f4f7', '#69c5ab'],
       stroke: '#463231',
-      background: '#f79eac'
+      background: '#f79eac',
     },
     {
       name: 'yuma_punk',
       colors: ['#f05e3b', '#ebdec4', '#ffdb00'],
       stroke: '#ebdec4',
-      background: '#161616'
+      background: '#161616',
+    },
+    {
+      name: 'yuma_punk2',
+      colors: ['#f2d002', '#f7f5e1', '#ec643b'],
+      stroke: '#19080e',
+      background: '#f7f5e1',
     },
     {
       name: 'moir',
       colors: ['#a49f4f', '#d4501e', '#f7c558', '#ebbaa6'],
       stroke: '#161716',
-      background: '#f7f4ef'
+      background: '#f7f4ef',
     },
     {
       name: 'sprague',
       colors: ['#ec2f28', '#f8cd28', '#1e95bb', '#fbaab3', '#fcefdf'],
       stroke: '#221e1f',
-      background: '#fcefdf'
+      background: '#fcefdf',
     },
     {
       name: 'bloomberg',
       colors: ['#ff5500', '#f4c145', '#144714', '#2f04fc', '#e276af'],
       stroke: '#000',
-      background: '#fff3dd'
+      background: '#fff3dd',
     },
     {
       name: 'revolucion',
       colors: ['#ed555d', '#fffcc9', '#41b797', '#eda126', '#7b5770'],
       stroke: '#fffcc9',
-      background: '#2d1922'
+      background: '#2d1922',
     },
     {
       name: 'sneaker',
       colors: ['#e8165b', '#401e38', '#66c3b4', '#ee7724', '#584098'],
       stroke: '#401e38',
-      background: '#ffffff'
+      background: '#ffffff',
     },
     {
       name: 'miradors',
       colors: ['#ff6936', '#fddc3f', '#0075ca', '#00bb70'],
       stroke: '#ffffff',
-      background: '#020202'
+      background: '#020202',
     },
     {
       name: 'kaffeprat',
       colors: ['#BCAA8C', '#D8CDBE', '#484A42', '#746B58', '#9A8C73'],
       stroke: '#000',
-      background: '#fff'
+      background: '#fff',
     },
     {
-      name: 'delphi',
-      colors: ['#475b62', '#7a999c', '#2a1f1d', '#fbaf3c', '#df4a33', '#f0e0c6', '#af592c'],
-      stroke: '#2a1f1d',
-      background: '#f0e0c6'
-    }
+      name: 'jrmy',
+      colors: ['#df456c', '#ea6a82', '#270b32', '#471e43'],
+      stroke: '#270b32',
+      background: '#ef9198',
+    },
+    {
+      name: 'animo',
+      colors: ['#f6c103', '#f6f6f6', '#d1cdc7', '#e7e6e5'],
+      stroke: '#010001',
+      background: '#f5f5f5',
+    },
+    {
+      name: 'book',
+      colors: ['#be1c24', '#d1a082', '#037b68', '#d8b1a5', '#1c2738', '#c95a3f'],
+      stroke: '#0e0f27',
+      background: '#f5b28a',
+    },
+    {
+      name: 'juxtapoz',
+      colors: ['#20357e', '#f44242', '#ffffff'],
+      stroke: '#000000',
+      background: '#cfc398',
+    },
+    {
+      name: 'hurdles',
+      colors: ['#e16503', '#dc9a0f', '#dfe2b4', '#66a7a6'],
+      stroke: '#3c1c03',
+      background: '#3c1c03',
+    },
+    {
+      name: 'ludo',
+      colors: ['#df302f', '#e5a320', '#0466b3', '#0f7963'],
+      stroke: '#272621',
+      background: '#dedccd',
+    },
+    {
+      name: 'riff',
+      colors: ['#e24724', '#c7c7c7', '#1f3e7c', '#d29294', '#010203'],
+      stroke: '#010203',
+      background: '#f2f2f2',
+    },
+    {
+      name: 'san ramon',
+      colors: ['#4f423a', '#f6a74b', '#589286', '#f8e9e2', '#2c2825'],
+      stroke: '#2c2825',
+      background: '#fff',
+    },
+    {
+      name: 'one-dress',
+      colors: ['#1767D2', '#FFFFFF', '#F9AB00', '#212121'],
+      stroke: '#212121',
+      background: '#fff',
+    },
   ];
 
   var colourscafe = [
@@ -4031,56 +4080,62 @@
       name: 'dt01',
       colors: ['#172a89', '#f7f7f3'],
       stroke: '#172a89',
-      background: '#f3abb0'
+      background: '#f3abb0',
     },
     {
       name: 'dt02',
       colors: ['#302956', '#f3c507'],
       stroke: '#302956',
-      background: '#eee3d3'
+      background: '#eee3d3',
     },
     {
       name: 'dt03',
       colors: ['#000000', '#a7a7a7'],
       stroke: '#000000',
-      background: '#0a5e78'
+      background: '#0a5e78',
     },
     {
       name: 'dt04',
       colors: ['#50978e', '#f7f0df'],
       stroke: '#000000',
-      background: '#f7f0df'
+      background: '#f7f0df',
     },
     {
       name: 'dt05',
       colors: ['#ee5d65', '#f0e5cb'],
       stroke: '#080708',
-      background: '#f0e5cb'
+      background: '#f0e5cb',
     },
     {
       name: 'dt06',
       colors: ['#271f47', '#e7ceb5'],
       stroke: '#271f47',
-      background: '#cc2b1c'
+      background: '#cc2b1c',
     },
     {
       name: 'dt07',
       colors: ['#6a98a5', '#d24c18'],
       stroke: '#efebda',
-      background: '#efebda'
+      background: '#efebda',
     },
     {
       name: 'dt08',
       colors: ['#5d9d88', '#ebb43b'],
       stroke: '#efebda',
-      background: '#efebda'
+      background: '#efebda',
     },
     {
       name: 'dt09',
       colors: ['#052e57', '#de8d80'],
       stroke: '#efebda',
-      background: '#efebda'
-    }
+      background: '#efebda',
+    },
+    {
+      name: 'dt10',
+      colors: ['#e5dfcf', '#151513'],
+      stroke: '#151513',
+      background: '#e9b500',
+    },
   ];
 
   var hilda = [
@@ -4240,6 +4295,264 @@
     }
   ];
 
+  var flourish = [
+    {
+      name: 'empusa',
+      colors: ['#c92a28', '#e69301', '#1f8793', '#13652b', '#e7d8b0', '#48233b', '#e3b3ac'],
+      stroke: '#1a1a1a',
+      background: '#f0f0f2',
+    },
+    {
+      name: 'delphi',
+      colors: ['#475b62', '#7a999c', '#2a1f1d', '#fbaf3c', '#df4a33', '#f0e0c6', '#af592c'],
+      stroke: '#2a1f1d',
+      background: '#f0e0c6',
+    },
+    {
+      name: 'mably',
+      colors: [
+        '#13477b',
+        '#2f1b10',
+        '#d18529',
+        '#d72a25',
+        '#e42184',
+        '#138898',
+        '#9d2787',
+        '#7f311b',
+      ],
+      stroke: '#2a1f1d',
+      background: '#dfc792',
+    },
+    {
+      name: 'nowak',
+      colors: ['#e85b30', '#ef9e28', '#c6ac71', '#e0c191', '#3f6279', '#ee854e', '#180305'],
+      stroke: '#180305',
+      background: '#ede4cb',
+    },
+    {
+      name: 'jupiter',
+      colors: ['#c03a53', '#edd09e', '#aab5af', '#023629', '#eba735', '#8e9380', '#6c4127'],
+      stroke: '#12110f',
+      background: '#e6e2d6',
+    },
+    {
+      name: 'hersche',
+      colors: [
+        '#df9f00',
+        '#1f6f50',
+        '#8e6d7f',
+        '#da0607',
+        '#a4a5a7',
+        '#d3d1c3',
+        '#42064f',
+        '#25393a',
+      ],
+      stroke: '#0a0a0a',
+      background: '#f0f5f6',
+    },
+    {
+      name: 'cherfi',
+      colors: ['#99cb9f', '#cfb610', '#d00701', '#dba78d', '#2e2c1d', '#bfbea2', '#d2cfaf'],
+      stroke: '#332e22',
+      background: '#e3e2c5',
+    },
+    {
+      name: 'harvest',
+      colors: [
+        '#313a42',
+        '#9aad2e',
+        '#f0ae3c',
+        '#df4822',
+        '#8eac9b',
+        '#cc3d3f',
+        '#ec8b1c',
+        '#1b9268',
+      ],
+      stroke: '#463930',
+      background: '#e5e2cf',
+    },
+    {
+      name: 'honey',
+      colors: ['#f14d42', '#f4fdec', '#4fbe5d', '#265487', '#f6e916', '#f9a087', '#2e99d6'],
+      stroke: '#141414',
+      background: '#f4fdec',
+    },
+    {
+      name: 'jungle',
+      colors: [
+        '#adb100',
+        '#e5f4e9',
+        '#f4650f',
+        '#4d6838',
+        '#cb9e00',
+        '#689c7d',
+        '#e2a1a8',
+        '#151c2e',
+      ],
+      stroke: '#0e0f27',
+      background: '#cecaa9',
+    },
+    {
+      name: 'skyspider',
+      colors: ['#f4b232', '#f2dbbd', '#01799c', '#e93e48', '#0b1952', '#006748', '#ed817d'],
+      stroke: '#050505',
+      background: '#f0dbbc',
+    },
+    {
+      name: 'atlas',
+      colors: ['#5399b1', '#f4e9d5', '#de4037', '#ed942f', '#4e9e48', '#7a6e62'],
+      stroke: '#3d352b',
+      background: '#f0c328',
+    },
+    {
+      name: 'giftcard',
+      colors: [
+        '#FBF5E9',
+        '#FF514E',
+        '#FDBC2E',
+        '#4561CC',
+        '#2A303E',
+        '#6CC283',
+        '#A71172',
+        '#238DA5',
+        '#9BD7CB',
+        '#231E58',
+        '#4E0942',
+      ],
+      stroke: '#000',
+      background: '#FBF5E9',
+    },
+    {
+      name: 'giftcard_sub',
+      colors: [
+        '#FBF5E9',
+        '#FF514E',
+        '#FDBC2E',
+        '#4561CC',
+        '#6CC283',
+        '#238DA5',
+        '#9BD7CB',
+      ],
+      stroke: '#000',
+      background: 
+      '#2A303E',
+    },
+  ];
+
+  var dale = [
+    {
+      name: 'dale_paddle',
+      colors: [
+        '#ff7a5a',
+        '#765aa6',
+        '#fee7bc',
+        '#515e8c',
+        '#ffc64a',
+        '#b460a6',
+        '#ffffff',
+        '#4781c1',
+      ],
+      stroke: '#000000',
+      background: '#abe9e8',
+    },
+    {
+      name: 'dale_night',
+      colors: ['#ae5d9d', '#f1e8bc', '#ef8fa3', '#f7c047', '#58c9ed', '#f77150'],
+      stroke: '#000000',
+      background: '#00ae83',
+    },
+    {
+      name: 'dale_cat',
+      colors: ['#f77656', '#f7f7f7', '#efc545', '#dfe0e2', '#3c70bd', '#66bee4'],
+      stroke: '#000000',
+      background: '#f6e0b8',
+    },
+  ];
+
+  var cako = [
+    {
+      name: 'cako1',
+      colors: ['#000000', '#d55a3a', '#2a5c8a', '#7e7d14', '#dbdac9'],
+      stroke: '#000000',
+      background: '#f4e9d5',
+    },
+    {
+      name: 'cako2',
+      colors: ['#dbdac9', '#d55a3a', '#2a5c8a', '#b47b8c', '#7e7d14'],
+      stroke: '#000000',
+      background: '#000000',
+    },
+    {
+      name: 'cako2_sub1',
+      colors: ['#dbdac9', '#d55a3a', '#2a5c8a'],
+      stroke: '#000000',
+      background: '#000000',
+    },
+    {
+      name: 'cako2_sub2',
+      colors: ['#dbdac9', '#d55a3a', '#7e7d14'],
+      stroke: '#000000',
+      background: '#000000',
+    },
+  ];
+
+  var mayo = [
+    {
+      name: 'mayo1',
+      colors: ['#ea510e', '#ffd203', '#0255a3', '#039177', '#111111'],
+      stroke: '#111111',
+      background: '#fff',
+    },
+    {
+      name: 'mayo2',
+      colors: ['#ea663f', '#f9cc27', '#84afd7', '#7ca994', '#f1bbc9', '#242424'],
+      stroke: '#2a2a2a',
+      background: '#f5f6f1',
+    },
+    {
+      name: 'mayo3',
+      colors: ['#ea5b19', '#f8c9b9', '#137661', '#2a2a2a'],
+      stroke: '#2a2a2a',
+      background: '#f5f4f0',
+    },
+  ];
+
+  var exposito = [
+    {
+      name: 'exposito',
+      colors: [
+        '#8bc9c3',
+        '#ffae43',
+        '#ea432c',
+        '#228345',
+        '#d1d7d3',
+        '#524e9c',
+        '#9dc35e',
+        '#f0a1a1',
+      ],
+      stroke: '#fff',
+      background: '#000000',
+    },
+    {
+      name: 'exposito_sub1',
+      colors: ['#8bc9c3', '#ffae43', '#ea432c', '#524e9c'],
+      stroke: '#fff',
+      background: '#000000',
+    },
+    {
+      name: 'exposito_sub2',
+      colors: ['#8bc9c3', '#ffae43', '#ea432c', '#524e9c', '#f0a1a1', '#228345'],
+      stroke: '#fff',
+      background: '#000000',
+    },
+    {
+      name: 'exposito_sub3',
+      colors: ['#ffae43', '#ea432c', '#524e9c', '#f0a1a1'],
+      stroke: '#fff',
+      background: '#000000',
+    },
+  ];
+
   const pals = misc.concat(
     ranganath,
     roygbivs,
@@ -4255,10 +4568,15 @@
     hilda,
     spatial,
     jung,
-    system
+    system,
+    flourish,
+    dale,
+    cako,
+    mayo,
+    exposito
   );
 
-  var palettes = pals.map(p => {
+  var palettes = pals.map((p) => {
     p.size = p.colors.length;
     return p;
   });
